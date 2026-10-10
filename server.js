@@ -1,3 +1,4 @@
+```javascript
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
@@ -10,12 +11,13 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const BUCKET = "paid-videos";
 
-if (
-  !process.env.SUPABASE_URL ||
-  !process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  !process.env.ADMIN_TOKEN
-) {
-  console.error("Missing required environment variables.");
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
+  process.exit(1);
+}
+
+if (!process.env.ADMIN_TOKEN) {
+  console.error("Missing ADMIN_TOKEN environment variable");
   process.exit(1);
 }
 
@@ -26,16 +28,40 @@ const supabase = createClient(
 
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+
+// Файлы сайта находятся в корневой папке репозитория.
+app.use((req, res, next) => {
+  const blocked = [
+    "/server.js",
+    "/package.json",
+    "/package-lock.json",
+    "/supabase.sql",
+    "/.env"
+  ];
+
+  if (blocked.includes(req.path)) {
+    return res.sendStatus(404);
+  }
+
+  next();
+});
+
 app.use(express.static(__dirname));
 
 function adminOnly(req, res, next) {
-  const token = req.headers.authorization || "";
-  const supplied = Buffer.from(token.replace(/^Bearer /, ""));
-  const expected = Buffer.from(process.env.ADMIN_TOKEN);
+  const header = req.headers.authorization || "";
+  const token = header.startsWith("Bearer ")
+    ? header.slice(7)
+    : "";
+
+  const expected = process.env.ADMIN_TOKEN;
+
+  const suppliedBuffer = Buffer.from(token);
+  const expectedBuffer = Buffer.from(expected);
 
   if (
-    supplied.length !== expected.length ||
-    !crypto.timingSafeEqual(supplied, expected)
+    suppliedBuffer.length !== expectedBuffer.length ||
+    !crypto.timingSafeEqual(suppliedBuffer, expectedBuffer)
   ) {
     return res.status(401).json({ error: "Нет доступа" });
   }
@@ -45,10 +71,8 @@ function adminOnly(req, res, next) {
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 500 * 1024 * 1024
-  },
-  fileFilter(req, file, cb) {
+  limits: { fileSize: 500 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
     const allowed = [
       "video/mp4",
       "video/webm",
@@ -56,29 +80,29 @@ const upload = multer({
     ];
 
     if (!allowed.includes(file.mimetype)) {
-      return cb(new Error("Разрешены MP4, WebM и MOV"));
+      return cb(new Error("Разрешены только MP4, WebM и MOV"));
     }
 
     cb(null, true);
   }
 });
 
+// Главная страница
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// Проверка сервера
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-/* Каталог опубликованных видео */
+// Опубликованные видео
 app.get("/api/videos", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("videos")
-      .select(
-        "id,slug,title,description,price,currency,thumbnail_url,created_at"
-      )
+      .select("id,slug,title,description,price,currency,thumbnail_url,created_at")
       .eq("published", true)
       .order("created_at", { ascending: false });
 
@@ -86,21 +110,17 @@ app.get("/api/videos", async (req, res) => {
 
     res.json(data || []);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      error: "Ошибка загрузки каталога"
-    });
+    console.error("Videos error:", error.message);
+    res.status(500).json({ error: "Не удалось загрузить видео" });
   }
 });
 
-/* Информация об отдельном видео */
+// Информация об одном опубликованном видео
 app.get("/api/videos/:slug", async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("videos")
-      .select(
-        "id,slug,title,description,price,currency,thumbnail_url,created_at"
-      )
+      .select("id,slug,title,description,price,currency,thumbnail_url,created_at")
       .eq("slug", req.params.slug)
       .eq("published", true)
       .maybeSingle();
@@ -108,125 +128,121 @@ app.get("/api/videos/:slug", async (req, res) => {
     if (error) throw error;
 
     if (!data) {
-      return res.status(404).json({
-        error: "Видео не найдено"
-      });
+      return res.status(404).json({ error: "Видео не найдено" });
     }
 
     res.json(data);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      error: "Ошибка загрузки видео"
-    });
+    console.error("Video details error:", error.message);
+    res.status(500).json({ error: "Не удалось загрузить видео" });
   }
 });
 
-/* Создание заказа */
+// Создание заказа
 app.post("/api/orders", async (req, res) => {
   try {
-    const videoId = String(req.body.video_id || "").trim();
-    const contact = String(req.body.contact || "").trim();
+    const { video_id, contact } = req.body;
 
-    if (!videoId || !contact || contact.length > 200) {
+    if (!video_id || !contact || !String(contact).trim()) {
       return res.status(400).json({
-        error: "Укажи видео и контакт для связи"
+        error: "Укажите видео и контакт для связи"
       });
     }
 
     const { data: video, error: videoError } = await supabase
       .from("videos")
       .select("id,price,currency")
-      .eq("id", videoId)
+      .eq("id", video_id)
       .eq("published", true)
       .maybeSingle();
 
     if (videoError) throw videoError;
 
     if (!video) {
-      return res.status(404).json({
-        error: "Видео не найдено"
-      });
+      return res.status(404).json({ error: "Видео не найдено" });
     }
 
     const { data: order, error } = await supabase
       .from("orders")
       .insert({
         video_id: video.id,
-        contact,
+        contact: String(contact).trim().slice(0, 300),
         amount: video.price,
         currency: video.currency,
         status: "pending"
       })
-      .select("id,amount,currency,status,created_at")
+      .select("id,status,amount,currency")
       .single();
 
     if (error) throw error;
 
     res.status(201).json({
-      message: "Заказ создан. Ожидает оплаты.",
+      message: "Заказ создан. Оплата пока не подключена.",
       order
     });
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      error: "Ошибка создания заказа"
-    });
+    console.error("Order error:", error.message);
+    res.status(500).json({ error: "Не удалось создать заказ" });
   }
 });
 
-/* Добавление карточки видео */
+// Добавление видео в каталог администратором
 app.post("/api/admin/videos", adminOnly, async (req, res) => {
   try {
-    const title = String(req.body.title || "").trim();
-    const description = String(req.body.description || "").trim();
+    const { slug, title, description, price, currency, thumbnail_url } =
+      req.body;
 
-    const slug = String(req.body.slug || "")
-      .toLowerCase()
+    const cleanSlug = String(slug || "")
       .trim()
-      .replace(/[^a-z0-9-]+/g, "-")
-      .replace(/^-+|-+$/g, "");
+      .toLowerCase();
 
-    const price = Number(req.body.price);
-    const currency = String(req.body.currency || "UAH").toUpperCase();
-
-    if (
-      !title ||
-      !slug ||
-      !Number.isFinite(price) ||
-      price < 0 ||
-      !["UAH", "EUR", "USD"].includes(currency)
-    ) {
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(cleanSlug)) {
       return res.status(400).json({
-        error: "Проверь название, адрес и цену"
+        error: "Slug: только английские буквы, цифры и дефисы"
       });
     }
+
+    if (!String(title || "").trim()) {
+      return res.status(400).json({ error: "Укажите название видео" });
+    }
+
+    const numericPrice = Number(price);
+
+    if (!Number.isFinite(numericPrice) || numericPrice < 0) {
+      return res.status(400).json({ error: "Неверная цена" });
+    }
+
+    const validCurrencies = ["UAH", "EUR", "USD"];
+    const selectedCurrency = validCurrencies.includes(currency)
+      ? currency
+      : "UAH";
 
     const { data, error } = await supabase
       .from("videos")
       .insert({
-        title,
-        slug,
-        description,
-        price,
-        currency,
+        slug: cleanSlug,
+        title: String(title).trim(),
+        description: String(description || "").trim(),
+        price: numericPrice,
+        currency: selectedCurrency,
+        thumbnail_url: thumbnail_url || null,
         published: false
       })
-      .select("id,slug,title,price,currency,published")
+      .select()
       .single();
 
     if (error) throw error;
 
-    res.status(201).json({ video: data });
+    res.status(201).json(data);
   } catch (error) {
-    console.error(error.message);
+    console.error("Create video error:", error.message);
     res.status(500).json({
-      error: "Не удалось создать видео"
+      error: "Не удалось добавить видео. Возможно, такой slug уже существует."
     });
   }
 });
 
-/* Загрузка видео в приватное хранилище */
+// Загрузка видео в приватное хранилище Supabase
 app.post(
   "/api/admin/videos/:id/upload",
   adminOnly,
@@ -234,41 +250,35 @@ app.post(
   async (req, res) => {
     try {
       if (!req.file) {
-        return res.status(400).json({
-          error: "Выбери видеофайл"
-        });
+        return res.status(400).json({ error: "Выберите видеофайл" });
       }
 
-      const extensions = {
+      const videoId = req.params.id;
+
+      if (!/^[0-9a-f-]{36}$/i.test(videoId)) {
+        return res.status(400).json({ error: "Неверный ID видео" });
+      }
+
+      const { data: video, error: findError } = await supabase
+        .from("videos")
+        .select("id,slug")
+        .eq("id", videoId)
+        .maybeSingle();
+
+      if (findError) throw findError;
+
+      if (!video) {
+        return res.status(404).json({ error: "Видео не найдено" });
+      }
+
+      const extensionMap = {
         "video/mp4": "mp4",
         "video/webm": "webm",
         "video/quicktime": "mov"
       };
 
-      const extension = extensions[req.file.mimetype];
-
-      if (!extension) {
-        return res.status(400).json({
-          error: "Неподдерживаемый формат"
-        });
-      }
-
-      const { data: video, error: lookupError } = await supabase
-        .from("videos")
-        .select("id")
-        .eq("id", req.params.id)
-        .maybeSingle();
-
-      if (lookupError) throw lookupError;
-
-      if (!video) {
-        return res.status(404).json({
-          error: "Сначала создай карточку видео"
-        });
-      }
-
-      const storagePath =
-        `${video.id}/${crypto.randomUUID()}.${extension}`;
+      const extension = extensionMap[req.file.mimetype];
+      const storagePath = `${video.id}/${Date.now()}.${extension}`;
 
       const { error: uploadError } = await supabase.storage
         .from(BUCKET)
@@ -285,93 +295,93 @@ app.post(
         .eq("id", video.id);
 
       if (updateError) {
-        await supabase.storage
-          .from(BUCKET)
-          .remove([storagePath]);
-
+        await supabase.storage.from(BUCKET).remove([storagePath]);
         throw updateError;
       }
 
-      res.status(201).json({
-        message: "Видео загружено в приватное хранилище"
+      res.json({
+        message: "Видео загружено в приватное хранилище",
+        storage_path: storagePath
       });
     } catch (error) {
-      console.error(error.message);
-      res.status(500).json({
-        error: "Не удалось загрузить видео"
-      });
+      console.error("Upload video error:", error.message);
+      res.status(500).json({ error: "Не удалось загрузить видео" });
     }
   }
 );
 
-/* Публикация видео после загрузки файла */
-app.post(
-  "/api/admin/videos/:id/publish",
-  adminOnly,
-  async (req, res) => {
-    try {
-      const { data: video, error: lookupError } = await supabase
-        .from("videos")
-        .select("id,storage_path")
-        .eq("id", req.params.id)
-        .maybeSingle();
+// Публикация видео после загрузки файла
+app.post("/api/admin/videos/:id/publish", adminOnly, async (req, res) => {
+  try {
+    const { data: video, error: findError } = await supabase
+      .from("videos")
+      .select("id,storage_path,title")
+      .eq("id", req.params.id)
+      .maybeSingle();
 
-      if (lookupError) throw lookupError;
+    if (findError) throw findError;
 
-      if (!video || !video.storage_path) {
-        return res.status(400).json({
-          error: "Сначала загрузи видео"
-        });
-      }
+    if (!video) {
+      return res.status(404).json({ error: "Видео не найдено" });
+    }
 
-      const { data, error } = await supabase
-        .from("videos")
-        .update({ published: true })
-        .eq("id", video.id)
-        .select("id,slug,published")
-        .single();
-
-      if (error) throw error;
-
-      res.json({ video: data });
-    } catch (error) {
-      console.error(error.message);
-      res.status(500).json({
-        error: "Ошибка публикации"
+    if (!video.storage_path) {
+      return res.status(400).json({
+        error: "Сначала загрузите видеофайл"
       });
     }
-  }
-);
 
-/* Просмотр заказов администратором */
+    const { data, error } = await supabase
+      .from("videos")
+      .update({ published: true })
+      .eq("id", video.id)
+      .select("id,slug,title,published")
+      .single();
+
+    if (error) throw error;
+
+    res.json(data);
+  } catch (error) {
+    console.error("Publish video error:", error.message);
+    res.status(500).json({ error: "Не удалось опубликовать видео" });
+  }
+});
+
+// Просмотр заказов администратором
 app.get("/api/admin/orders", adminOnly, async (req, res) => {
   try {
     const { data, error } = await supabase
       .from("orders")
-      .select(
-        "id,video_id,contact,amount,currency,status,created_at"
-      )
-      .order("created_at", { ascending: false })
-      .limit(200);
+      .select("id,video_id,contact,amount,currency,status,created_at")
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 
     res.json(data || []);
   } catch (error) {
-    console.error(error.message);
-    res.status(500).json({
-      error: "Ошибка загрузки заказов"
-    });
+    console.error("Orders error:", error.message);
+    res.status(500).json({ error: "Не удалось загрузить заказы" });
   }
 });
 
+// Обработка ошибок
 app.use((err, req, res, next) => {
-  console.error(err.message);
-  res.status(400).json({
-    error: err.message || "Ошибка запроса"
-  });
+  console.error("Server error:", err.message);
+
+  if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({
+      error: "Файл слишком большой. Максимум 500 МБ."
+    });
+  }
+
+  if (err.message && err.message.startsWith("Разрешены только")) {
+    return res.status(400).json({ error: err.message });
+  }
+
+  res.status(500).json({ error: "Внутренняя ошибка сервера" });
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`FETISH VIDEO STORE running on port ${PORT}`);
 });
+```
