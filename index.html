@@ -141,6 +141,7 @@
             player.setAttribute("playsinline", "");
             player.setAttribute("webkit-playsinline", "");
             player.setAttribute("aria-label", "Превью: " + video.title);
+            <button class="preview-dollar" type="button" title="Цена видео">$</button>
 
             player.addEventListener("play", () => {
               document.querySelectorAll("#catalog video").forEach(other => {
