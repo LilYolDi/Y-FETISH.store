@@ -76,18 +76,26 @@
 
 
 <nav class="header-nav">
-
-
-  <button class="menu-button" id="menuButton"
-          aria-label="Открыть меню" aria-expanded="false">
-    ☰
-  </button>
-
-  <div class="dropdown-menu" id="dropdownMenu" hidden>
-    <a href="/">Каталог</a>
-    <a href="/admin.html">Администратор</a>
-  </div>
+  <button
+    class="menu-button"
+    id="menuButton"
+    type="button"
+    aria-label="Открыть меню"
+    aria-expanded="false"
+  >☰</button>
 </nav>
+
+<div class="menu-overlay" id="menuOverlay"></div>
+
+<aside class="side-menu" id="sideMenu" aria-hidden="true">
+  <div class="side-menu-header">
+    <span>МЕНЮ</span>
+    <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
+  </div>
+
+  <a href="/">Каталог видео</a>
+  <a href="/admin.html">Администратор</a>
+</aside>
   </header>
 
   <main class="container">
@@ -259,21 +267,36 @@
     loadCatalog();
 
 
-const menuButton = document.getElementById('menuButton');
-const dropdownMenu = document.getElementById('dropdownMenu');
 
-menuButton.addEventListener('click', function () {
-  dropdownMenu.hidden = !dropdownMenu.hidden;
-  menuButton.setAttribute('aria-expanded', String(!dropdownMenu.hidden));
-});
+/* 3.1 — Боковое меню */
+(function () {
+  const menuButton = document.getElementById("menuButton");
+  const closeButton = document.getElementById("closeMenu");
+  const overlay = document.getElementById("menuOverlay");
+  const sideMenu = document.getElementById("sideMenu");
 
-document.addEventListener('click', function (event) {
-  if (!menuButton.contains(event.target) &&
-      !dropdownMenu.contains(event.target)) {
-    dropdownMenu.hidden = true;
-    menuButton.setAttribute('aria-expanded', 'false');
+  if (!menuButton || !closeButton || !overlay || !sideMenu) return;
+
+  function openMenu() {
+    document.body.classList.add("menu-open");
+    menuButton.setAttribute("aria-expanded", "true");
+    sideMenu.setAttribute("aria-hidden", "false");
   }
-});
+
+  function closeMenu() {
+    document.body.classList.remove("menu-open");
+    menuButton.setAttribute("aria-expanded", "false");
+    sideMenu.setAttribute("aria-hidden", "true");
+  }
+
+  menuButton.addEventListener("click", openMenu);
+  closeButton.addEventListener("click", closeMenu);
+  overlay.addEventListener("click", closeMenu);
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") closeMenu();
+  });
+})();
 </script>
 </body>
 </html>
