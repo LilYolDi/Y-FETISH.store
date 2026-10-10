@@ -1,4 +1,3 @@
-```javascript
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
@@ -384,4 +383,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`FETISH VIDEO STORE running on port ${PORT}`);
 });
-```
