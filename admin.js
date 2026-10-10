@@ -20,10 +20,14 @@ async function adminApi(url, options = {}) {
   return result;
 }
 
+function showStatus(id, message) {
+  document.getElementById(id).textContent = message;
+}
+
+// Создание карточки
 document.getElementById("create-form").addEventListener("submit", async e => {
   e.preventDefault();
-  const status = document.getElementById("create-status");
-  status.textContent = "Создаём карточку...";
+  showStatus("create-status", "Создаём карточку...");
 
   try {
     const result = await adminApi("/api/admin/videos", {
@@ -38,26 +42,35 @@ document.getElementById("create-form").addEventListener("submit", async e => {
       })
     });
 
-    document.getElementById("video-id").value = result.video.id;
-    document.getElementById("publish-id").value = result.video.id;
-    status.textContent = "Карточка создана. ID: " + result.video.id;
+    const video = result.video || result;
+
+    if (!video.id) {
+      throw new Error("Карточка создана, но сервер не вернул ID.");
+    }
+
+    document.getElementById("video-id").value = video.id;
+    document.getElementById("preview-id").value = video.id;
+    document.getElementById("publish-id").value = video.id;
+
+    showStatus("create-status", "Карточка создана. ID: " + video.id);
   } catch (error) {
-    status.textContent = error.message;
+    showStatus("create-status", error.message);
   }
 });
 
+// Загрузка полного видео в приватное хранилище
 document.getElementById("upload-form").addEventListener("submit", async e => {
   e.preventDefault();
-  const status = document.getElementById("upload-status");
+
   const file = document.getElementById("video-file").files[0];
   const id = document.getElementById("video-id").value.trim();
 
   if (!file || !id) {
-    status.textContent = "Укажи ID и выбери файл.";
+    showStatus("upload-status", "Укажи ID карточки и выбери файл.");
     return;
   }
 
-  status.textContent = "Загружаем...";
+  showStatus("upload-status", "Загружаем полное видео...");
 
   try {
     const body = new FormData();
@@ -68,28 +81,64 @@ document.getElementById("upload-form").addEventListener("submit", async e => {
       { method: "POST", body }
     );
 
-    status.textContent = result.message;
+    showStatus("upload-status", result.message || "Полное видео загружено.");
   } catch (error) {
-    status.textContent = error.message;
+    showStatus("upload-status", error.message);
   }
 });
 
+// Загрузка короткого фрагмента в публичное хранилище
+document.getElementById("preview-form").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  const file = document.getElementById("preview-file").files[0];
+  const id = document.getElementById("preview-id").value.trim();
+
+  if (!file || !id) {
+    showStatus("preview-status", "Укажи ID карточки и выбери фрагмент.");
+    return;
+  }
+
+  showStatus("preview-status", "Загружаем короткий фрагмент...");
+
+  try {
+    const body = new FormData();
+    body.append("preview", file);
+
+    const result = await adminApi(
+      "/api/admin/videos/" + encodeURIComponent(id) + "/preview",
+      { method: "POST", body }
+    );
+
+    showStatus(
+      "preview-status",
+      result.message || "Короткий фрагмент загружен."
+    );
+  } catch (error) {
+    showStatus("preview-status", error.message);
+  }
+});
+
+// Публикация
 document.getElementById("publish-form").addEventListener("submit", async e => {
   e.preventDefault();
-  const status = document.getElementById("publish-status");
+
   const id = document.getElementById("publish-id").value.trim();
+  showStatus("publish-status", "Публикуем...");
 
   try {
     await adminApi(
       "/api/admin/videos/" + encodeURIComponent(id) + "/publish",
       { method: "POST" }
     );
-    status.textContent = "Опубликовано. Проверь каталог.";
+
+    showStatus("publish-status", "Опубликовано. Проверь каталог.");
   } catch (error) {
-    status.textContent = error.message;
+    showStatus("publish-status", error.message);
   }
 });
 
+// Просмотр заказов
 document.getElementById("load-orders").addEventListener("click", async () => {
   const output = document.getElementById("orders");
   output.textContent = "Загрузка...";
