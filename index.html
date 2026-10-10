@@ -1,86 +1,245 @@
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>FETISH VIDEO STORE — каталог видео 18+</title>
-  <meta name="description" content="Каталог видео для совершеннолетних. Выбирайте видео и оформляйте заказ онлайн.">
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Каталог видео для совершеннолетних. Смотрите бесплатные превью и оформляйте заказ на полные видео.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://y-fetish-store.onrender.com/">
+  <link rel="stylesheet" href="/style.css">
+
+  <style>
+    .thumbnail {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      background: #171717;
+      border-radius: 10px;
+    }
+
+    .thumbnail video,
+    .thumbnail img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .thumbnail video {
+      background: #171717;
+    }
+
+    .preview-label {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 2;
+      padding: 5px 9px;
+      border-radius: 5px;
+      background: rgba(0, 0, 0, .75);
+      color: white;
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .thumbnail-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      color: white;
+      font-size: 42px;
+    }
+
+    .open-video {
+      display: inline-block;
+      margin-top: 12px;
+    }
+  </style>
 </head>
+
 <body>
-<header class="header">
-  <a class="logo" href="/"><span>Y</span>-FETISH <small>VIDEO STORE</small></a>
-  <nav><a href="/">Каталог</a><a href="/admin.html">Администратор</a></nav>
-</header>
+  <header class="header">
+    <a class="logo" href="/">
+      <span>Y</span>-FETISH <small>VIDEO STORE</small>
+    </a>
 
-<main class="container">
-  <section class="hero">
-    <h1>FETISH VIDEO STORE</h1>
-    <p>Каталог видео для совершеннолетних — 18+</p>
-  </section>
+    <nav>
+      <a href="/">Каталог</a>
+      <a href="/admin.html">Администратор</a>
+    </nav>
+  </header>
 
-  <h2>Каталог видео</h2>
-  <p id="status">Загрузка видео...</p>
-  <div id="catalog" class="catalog"></div>
-</main>
+  <main class="container">
+    <section class="hero">
+      <h1>FETISH VIDEO STORE</h1>
+      <p>Каталог видео для совершеннолетних — 18+</p>
+    </section>
 
-<footer>FETISH VIDEO STORE · 18+</footer>
+    <h2>Каталог видео</h2>
+    <p id="status">Загрузка видео...</p>
+    <div id="catalog" class="catalog"></div>
+  </main>
 
-<script>
-async function loadCatalog() {
-  const status = document.getElementById("status");
-  const catalog = document.getElementById("catalog");
+  <footer>FETISH VIDEO STORE · 18+</footer>
 
-  try {
-    const response = await fetch("/api/videos");
-    if (!response.ok) throw new Error("Ошибка загрузки");
+  <script>
+    let previewObserver;
 
-    const videos = await response.json();
-    status.textContent = videos.length ? "" : "Видео пока нет.";
+    async function loadCatalog() {
+      const status = document.getElementById("status");
+      const catalog = document.getElementById("catalog");
 
-    catalog.replaceChildren();
+      try {
+        const response = await fetch("/api/videos");
 
-    videos.forEach(video => {
-      const card = document.createElement("article");
-      card.className = "card";
+        if (!response.ok) {
+          throw new Error("Не удалось загрузить каталог");
+        }
 
-      const link = document.createElement("a");
-      link.href = "/video.html?slug=" + encodeURIComponent(video.slug);
-      link.className = "thumbnail";
+        const videos = await response.json();
 
-      if (video.thumbnail_url) {
-        const img = document.createElement("img");
-        img.src = video.thumbnail_url;
-        img.alt = video.title;
-        link.appendChild(img);
-      } else {
-        link.textContent = "▶";
+        catalog.replaceChildren();
+        status.textContent = videos.length ? "" : "Видео пока нет.";
+
+        if (previewObserver) {
+          previewObserver.disconnect();
+        }
+
+        videos.forEach(video => {
+          const card = document.createElement("article");
+          card.className = "card";
+
+          const videoUrl =
+            "/video.html?slug=" + encodeURIComponent(video.slug);
+
+          const thumbnail = document.createElement("div");
+          thumbnail.className = "thumbnail";
+
+          if (video.preview_url) {
+            const player = document.createElement("video");
+
+            player.src = video.preview_url;
+            player.muted = true;
+            player.defaultMuted = true;
+            player.autoplay = true;
+            player.loop = true;
+            player.playsInline = true;
+            player.preload = "metadata";
+            player.controls = true;
+            player.setAttribute("playsinline", "");
+            player.setAttribute("webkit-playsinline", "");
+            player.setAttribute("aria-label", "Превью: " + video.title);
+
+            player.addEventListener("play", () => {
+              document.querySelectorAll("#catalog video").forEach(other => {
+                if (other !== player) {
+                  other.pause();
+                }
+              });
+            });
+
+            thumbnail.appendChild(player);
+
+            const label = document.createElement("span");
+            label.className = "preview-label";
+            label.textContent = "ПРЕВЬЮ";
+            thumbnail.appendChild(label);
+          } else if (video.thumbnail_url) {
+            const link = document.createElement("a");
+            link.href = videoUrl;
+            link.setAttribute("aria-label", "Открыть видео: " + video.title);
+
+            const img = document.createElement("img");
+            img.src = video.thumbnail_url;
+            img.alt = video.title;
+            img.loading = "lazy";
+
+            link.appendChild(img);
+            thumbnail.appendChild(link);
+          } else {
+            const link = document.createElement("a");
+            link.href = videoUrl;
+            link.className = "thumbnail-placeholder";
+            link.textContent = "▶";
+            link.setAttribute("aria-label", "Открыть видео: " + video.title);
+            thumbnail.appendChild(link);
+          }
+
+          const content = document.createElement("div");
+          content.className = "card-content";
+
+          const title = document.createElement("h3");
+          const titleLink = document.createElement("a");
+          titleLink.href = videoUrl;
+          titleLink.textContent = video.title;
+          title.appendChild(titleLink);
+
+          const description = document.createElement("p");
+          description.textContent =
+            (video.description || "").slice(0, 180);
+
+          const price = document.createElement("strong");
+          price.textContent = `${video.price} ${video.currency}`;
+
+          const openLink = document.createElement("a");
+          openLink.href = videoUrl;
+          openLink.className = "open-video";
+          openLink.textContent = "Открыть видео";
+
+          content.append(title, description, price, openLink);
+          card.append(thumbnail, content);
+          catalog.appendChild(card);
+        });
+
+        previewObserver = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            const player = entry.target;
+
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+              document.querySelectorAll("#catalog video").forEach(other => {
+                if (other !== player) {
+                  other.pause();
+                }
+              });
+
+              player.play().catch(() => {
+                // Если браузер запрещает автозапуск,
+                // пользователь может нажать Play вручную.
+              });
+            } else {
+              player.pause();
+            }
+          });
+        }, {
+          threshold: [0, 0.6, 1]
+        });
+
+        document.querySelectorAll("#catalog video").forEach(player => {
+          previewObserver.observe(player);
+        });
+
+      } catch (error) {
+        console.error(error);
+        status.textContent =
+          "Не удалось загрузить каталог. Проверь сервер и Supabase.";
       }
+    }
 
-      const content = document.createElement("div");
-      content.className = "card-content";
-
-      const title = document.createElement("h3");
-      const titleLink = document.createElement("a");
-      titleLink.href = link.href;
-      titleLink.textContent = video.title;
-      title.appendChild(titleLink);
-
-      const description = document.createElement("p");
-      description.textContent = (video.description || "").slice(0, 180);
-
-      const price = document.createElement("strong");
-      price.textContent = `${video.price} ${video.currency}`;
-
-      content.append(title, description, price);
-      card.append(link, content);
-      catalog.appendChild(card);
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        document.querySelectorAll("#catalog video").forEach(player => {
+          player.pause();
+        });
+      }
     });
-  } catch {
-    status.textContent = "Не удалось загрузить каталог. Проверь сервер и Supabase.";
-  }
-}
-loadCatalog();
-</script>
+
+    loadCatalog();
+  </script>
 </body>
 </html>
+```
