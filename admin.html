@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -43,30 +44,44 @@
 
       <button type="submit">Создать карточку</button>
     </form>
-    <p id="create-status"></p>
+    <p id="create-status" role="status"></p>
 
-    <h2>2. Загрузить видео</h2>
+    <h2>2. Загрузить полное видео</h2>
     <form id="upload-form">
       <label for="video-id">ID карточки</label>
       <input id="video-id" required>
 
-      <label for="video-file">Видео MP4, WebM или MOV</label>
+      <label for="video-file">Полное видео MP4, WebM или MOV</label>
       <input id="video-file" type="file"
              accept="video/mp4,video/webm,video/quicktime" required>
 
-      <button type="submit">Загрузить видео</button>
+      <button type="submit">Загрузить полное видео</button>
     </form>
-    <p id="upload-status"></p>
+    <p id="upload-status" role="status"></p>
 
-    <h2>3. Опубликовать</h2>
+    <h2>3. Загрузить короткий фрагмент</h2>
+    <p>Этот фрагмент будет доступен посетителям до покупки.</p>
+    <form id="preview-form">
+      <label for="preview-id">ID карточки</label>
+      <input id="preview-id" required>
+
+      <label for="preview-file">Короткий фрагмент MP4, WebM или MOV</label>
+      <input id="preview-file" type="file"
+             accept="video/mp4,video/webm,video/quicktime" required>
+
+      <button type="submit">Загрузить короткий фрагмент</button>
+    </form>
+    <p id="preview-status" role="status"></p>
+
+    <h2>4. Опубликовать видео</h2>
     <form id="publish-form">
       <label for="publish-id">ID карточки</label>
       <input id="publish-id" required>
       <button type="submit">Опубликовать видео</button>
     </form>
-    <p id="publish-status"></p>
+    <p id="publish-status" role="status"></p>
 
-    <h2>4. Заказы</h2>
+    <h2>5. Заказы</h2>
     <button id="load-orders" type="button">Показать заказы</button>
     <pre id="orders"></pre>
   </section>
