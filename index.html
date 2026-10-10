@@ -74,13 +74,21 @@
       <span>Y</span>-FETISH <small>VIDEO STORE</small>
     </a>
 
-    <nav>
-      <a href="/">Каталог</a>
-      <a href="/admin.html">Администратор</a>
-      <button class="menu-button" id="menuButton" aria-label="Открыть меню" aria-expanded="false">
-       ☰
-     </button
-    </nav>
+
+<nav class="header-nav">
+  <a href="/">Каталог</a>
+  <a href="/admin.html">Администратор</a>
+
+  <button class="menu-button" id="menuButton"
+          aria-label="Открыть меню" aria-expanded="false">
+    ☰
+  </button>
+
+  <div class="dropdown-menu" id="dropdownMenu" hidden>
+    <a href="/">Каталог</a>
+    <a href="/admin.html">Администратор</a>
+  </div>
+</nav>
   </header>
 
   <main class="container">
@@ -250,6 +258,23 @@
     });
 
     loadCatalog();
-  </script>
+
+
+const menuButton = document.getElementById('menuButton');
+const dropdownMenu = document.getElementById('dropdownMenu');
+
+menuButton.addEventListener('click', function () {
+  dropdownMenu.hidden = !dropdownMenu.hidden;
+  menuButton.setAttribute('aria-expanded', String(!dropdownMenu.hidden));
+});
+
+document.addEventListener('click', function (event) {
+  if (!menuButton.contains(event.target) &&
+      !dropdownMenu.contains(event.target)) {
+    dropdownMenu.hidden = true;
+    menuButton.setAttribute('aria-expanded', 'false');
+  }
+});
+</script>
 </body>
 </html>
