@@ -127,6 +127,17 @@ footer {
   .logo { font-size: 21px; }
 }
 
+.open-video {
+  display: inline-block;
+  margin-left: 14px;
+  padding: 10px 18px;
+  background: #d71920;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
 @media (max-width: 480px) {
   .catalog { grid-template-columns: 1fr; }
   .header { align-items: flex-start; }
