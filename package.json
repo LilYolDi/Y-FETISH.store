@@ -1,0 +1,16 @@
+```json
+{
+  "name": "fetish-video-store",
+  "version": "1.0.0",
+  "description": "FETISH VIDEO STORE - paid video platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0"
+  }
+}
+```

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Администратор — FETISH VIDEO STORE</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="/"><span>Y</span>-FETISH <small>VIDEO STORE</small></a>
+  <nav><a href="/">Каталог</a></nav>
+</header>
+
+<main class="container">
+  <section class="form-panel">
+    <h1>Управление видео</h1>
+
+    <label for="token">Секретный токен администратора</label>
+    <input id="token" type="password" autocomplete="current-password">
+
+    <h2>1. Создать карточку</h2>
+    <form id="create-form">
+      <label for="title">Название</label>
+      <input id="title" maxlength="180" required>
+
+      <label for="slug">Адрес на латинице</label>
+      <input id="slug" placeholder="my-video" required>
+
+      <label for="description">Описание</label>
+      <textarea id="description" rows="4"></textarea>
+
+      <label for="price">Цена</label>
+      <input id="price" type="number" min="0" step="0.01" required>
+
+      <label for="currency">Валюта</label>
+      <select id="currency">
+        <option value="UAH">UAH</option>
+        <option value="EUR">EUR</option>
+        <option value="USD">USD</option>
+      </select>
+
+      <button type="submit">Создать карточку</button>
+    </form>
+    <p id="create-status"></p>
+
+    <h2>2. Загрузить видео</h2>
+    <form id="upload-form">
+      <label for="video-id">ID карточки</label>
+      <input id="video-id" required>
+
+      <label for="video-file">Видео MP4, WebM или MOV</label>
+      <input id="video-file" type="file"
+             accept="video/mp4,video/webm,video/quicktime" required>
+
+      <button type="submit">Загрузить видео</button>
+    </form>
+    <p id="upload-status"></p>
+
+    <h2>3. Опубликовать</h2>
+    <form id="publish-form">
+      <label for="publish-id">ID карточки</label>
+      <input id="publish-id" required>
+      <button type="submit">Опубликовать видео</button>
+    </form>
+    <p id="publish-status"></p>
+
+    <h2>4. Заказы</h2>
+    <button id="load-orders" type="button">Показать заказы</button>
+    <pre id="orders"></pre>
+  </section>
+</main>
+
+<footer><a href="/">Открыть каталог</a></footer>
+<script src="/admin.js"></script>
+</body>
+</html>

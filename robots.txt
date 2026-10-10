@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+
+Sitemap: https://YOUR-RENDER-DOMAIN/sitemap.xml

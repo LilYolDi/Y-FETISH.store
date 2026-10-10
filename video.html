@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Видео — FETISH VIDEO STORE</title>
+  <meta name="description" content="Информация о видео и оформление заказа.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="/"><span>Y</span>-FETISH <small>VIDEO STORE</small></a>
+  <nav><a href="/">← Вернуться в каталог</a></nav>
+</header>
+
+<main class="container">
+  <article class="video-detail">
+    <p id="status">Загрузка...</p>
+    <div id="details"></div>
+
+    <form id="order-form" hidden>
+      <h2>Оформить заказ</h2>
+      <label for="contact">Твой Telegram для связи</label>
+      <input id="contact" maxlength="200" placeholder="@username" required>
+      <button type="submit">Создать заказ</button>
+    </form>
+
+    <p id="order-status" role="status"></p>
+  </article>
+</main>
+
+<footer><a href="/">Вернуться в каталог</a></footer>
+<script src="/video.js"></script>
+</body>
+</html>

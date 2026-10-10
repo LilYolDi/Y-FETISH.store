@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FETISH VIDEO STORE — каталог видео 18+</title>
+  <meta name="description" content="Каталог видео для совершеннолетних. Выбирайте видео и оформляйте заказ онлайн.">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="header">
+  <a class="logo" href="/"><span>Y</span>-FETISH <small>VIDEO STORE</small></a>
+  <nav><a href="/">Каталог</a><a href="/admin.html">Администратор</a></nav>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h1>FETISH VIDEO STORE</h1>
+    <p>Каталог видео для совершеннолетних — 18+</p>
+  </section>
+
+  <h2>Каталог видео</h2>
+  <p id="status">Загрузка видео...</p>
+  <div id="catalog" class="catalog"></div>
+</main>
+
+<footer>FETISH VIDEO STORE · 18+</footer>
+
+<script>
+async function loadCatalog() {
+  const status = document.getElementById("status");
+  const catalog = document.getElementById("catalog");
+
+  try {
+    const response = await fetch("/api/videos");
+    if (!response.ok) throw new Error("Ошибка загрузки");
+
+    const videos = await response.json();
+    status.textContent = videos.length ? "" : "Видео пока нет.";
+
+    catalog.replaceChildren();
+
+    videos.forEach(video => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const link = document.createElement("a");
+      link.href = "/video.html?slug=" + encodeURIComponent(video.slug);
+      link.className = "thumbnail";
+
+      if (video.thumbnail_url) {
+        const img = document.createElement("img");
+        img.src = video.thumbnail_url;
+        img.alt = video.title;
+        link.appendChild(img);
+      } else {
+        link.textContent = "▶";
+      }
+
+      const content = document.createElement("div");
+      content.className = "card-content";
+
+      const title = document.createElement("h3");
+      const titleLink = document.createElement("a");
+      titleLink.href = link.href;
+      titleLink.textContent = video.title;
+      title.appendChild(titleLink);
+
+      const description = document.createElement("p");
+      description.textContent = (video.description || "").slice(0, 180);
+
+      const price = document.createElement("strong");
+      price.textContent = `${video.price} ${video.currency}`;
+
+      content.append(title, description, price);
+      card.append(link, content);
+      catalog.appendChild(card);
+    });
+  } catch {
+    status.textContent = "Не удалось загрузить каталог. Проверь сервер и Supabase.";
+  }
+}
+loadCatalog();
+</script>
+</body>
+</html>
