@@ -406,3 +406,14 @@ body.menu-open {
   height: 100%;
   object-fit: cover;
 }
+
+
+@media (max-width: 480px) {
+  .open-video {
+    margin: 8px 0 0;
+    padding: 7px 10px;
+    font-size: 12px;
+    border-radius: 5px;
+    display: inline-block;
+  }
+}
