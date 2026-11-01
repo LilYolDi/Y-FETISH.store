@@ -384,3 +384,18 @@ body.menu-open .menu-overlay {
 body.menu-open {
   overflow: hidden;
 }
+
+
+.gold-fetish {
+  background: linear-gradient(
+    180deg,
+    #fff2b0 0%,
+    #d4af37 30%,
+    #f9e27d 50%,
+    #b8860b 75%,
+    #fff0a0 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
