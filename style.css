@@ -139,7 +139,7 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .catalog { grid-template-columns: 1fr; }
+  .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .header { align-items: flex-start; }
   .header nav { flex-direction: column; gap: 4px; }
   .form-panel, .video-detail { padding: 16px; }
