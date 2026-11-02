@@ -12,6 +12,16 @@ const PORT = process.env.PORT || 10000;
 const BUCKET = "paid-videos";
 const PREVIEW_BUCKET = "preview-videos";
 
+const VIDEO_CATEGORIES = [
+  "mistress",
+  "slave",
+  "domination",
+  "submission",
+  "fetish",
+  "feet",
+  "other"
+];
+
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error("Missing Supabase environment variables");
   process.exit(1);
@@ -105,7 +115,7 @@ app.get("/api/videos", async (req, res) => {
     const { data, error } = await supabase
       .from("videos")
       .select(
-        "id,slug,title,description,price,currency,thumbnail_url,preview_path,created_at"
+        "id,slug,title,description,price,currency,thumbnail_url,preview_path,category,created_at"
       )
       .eq("published", true)
       .order("created_at", { ascending: false });
@@ -132,6 +142,7 @@ app.get("/api/videos", async (req, res) => {
         currency: video.currency,
         thumbnail_url: video.thumbnail_url,
         preview_url: previewUrl,
+        category: video.category,
         created_at: video.created_at
       };
     });
@@ -149,7 +160,7 @@ app.get("/api/videos/:slug", async (req, res) => {
     const { data, error } = await supabase
       .from("videos")
       .select(
-        "id,slug,title,description,price,currency,thumbnail_url,preview_path,created_at"
+        "id,slug,title,description,price,currency,thumbnail_url,preview_path,category,created_at"
       )
       .eq("slug", req.params.slug)
       .eq("published", true)
@@ -178,6 +189,7 @@ app.get("/api/videos/:slug", async (req, res) => {
       currency: data.currency,
       thumbnail_url: data.thumbnail_url,
       preview_url: previewUrl,
+      category: data.category,
       created_at: data.created_at
     });
   } catch (error) {
@@ -236,8 +248,15 @@ app.post("/api/orders", async (req, res) => {
 // Создание карточки
 app.post("/api/admin/videos", adminOnly, async (req, res) => {
   try {
-    const { slug, title, description, price, currency, thumbnail_url } =
-      req.body;
+    const {
+      slug,
+      title,
+      description,
+      price,
+      currency,
+      thumbnail_url,
+      category
+    } = req.body;
 
     const cleanSlug = String(slug || "").trim().toLowerCase();
 
@@ -252,12 +271,21 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
     }
 
     const numericPrice = Number(price);
+
     if (!Number.isFinite(numericPrice) || numericPrice < 0) {
       return res.status(400).json({ error: "Неверная цена" });
     }
 
     const currencies = ["UAH", "EUR", "USD"];
     const selectedCurrency = currencies.includes(currency) ? currency : "UAH";
+
+    const selectedCategory = String(category || "other").trim().toLowerCase();
+
+    if (!VIDEO_CATEGORIES.includes(selectedCategory)) {
+      return res.status(400).json({
+        error: "Выберите допустимую категорию видео"
+      });
+    }
 
     const { data, error } = await supabase
       .from("videos")
@@ -268,9 +296,10 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
         price: numericPrice,
         currency: selectedCurrency,
         thumbnail_url: thumbnail_url || null,
+        category: selectedCategory,
         published: false
       })
-      .select("id,slug,title,price,currency,published")
+      .select("id,slug,title,price,currency,category,published")
       .single();
 
     if (error) throw error;
@@ -278,6 +307,16 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
     res.status(201).json({ video: data });
   } catch (error) {
     console.error("Create video error:", error.message);
+
+    if (
+      error.code === "42703" ||
+      error.message?.includes("category")
+    ) {
+      return res.status(500).json({
+        error: "В Supabase ещё не создано поле category. Сначала настрой Supabase."
+      });
+    }
+
     res.status(500).json({
       error: "Не удалось добавить видео. Возможно, такой slug уже существует."
     });
@@ -296,6 +335,7 @@ app.post(
       }
 
       const videoId = req.params.id;
+
       if (!/^[0-9a-f-]{36}$/i.test(videoId)) {
         return res.status(400).json({ error: "Неверный ID видео" });
       }
@@ -358,6 +398,7 @@ app.post(
       }
 
       const videoId = req.params.id;
+
       if (!/^[0-9a-f-]{36}$/i.test(videoId)) {
         return res.status(400).json({ error: "Неверный ID видео" });
       }
@@ -418,11 +459,12 @@ app.post("/api/admin/videos/:id/publish", adminOnly, async (req, res) => {
   try {
     const { data: video, error: findError } = await supabase
       .from("videos")
-      .select("id,storage_path,title,preview_path")
+      .select("id,storage_path,title,preview_path,category")
       .eq("id", req.params.id)
       .maybeSingle();
 
     if (findError) throw findError;
+
     if (!video) {
       return res.status(404).json({ error: "Видео не найдено" });
     }
@@ -433,11 +475,17 @@ app.post("/api/admin/videos/:id/publish", adminOnly, async (req, res) => {
       });
     }
 
+    if (!VIDEO_CATEGORIES.includes(video.category)) {
+      return res.status(400).json({
+        error: "У видео отсутствует корректная категория"
+      });
+    }
+
     const { data, error } = await supabase
       .from("videos")
       .update({ published: true })
       .eq("id", video.id)
-      .select("id,slug,title,published")
+      .select("id,slug,title,category,published")
       .single();
 
     if (error) throw error;
@@ -458,6 +506,7 @@ app.get("/api/admin/orders", adminOnly, async (req, res) => {
       .order("created_at", { ascending: false });
 
     if (error) throw error;
+
     res.json(data || []);
   } catch (error) {
     console.error("Orders error:", error.message);
