@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -13,32 +14,28 @@
   <link rel="apple-touch-icon" href="/favicon.png">
 
   <style>
-.thumbnail {
-  position: relative;
-  width: 100%;
-  height: 220px;
-  overflow: hidden;
-  background: #000;
-  border-radius: 10px;
-}
-
-.thumbnail video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: #000;
-}
-
-.thumbnail img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+    .thumbnail {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      overflow: hidden;
+      background: #000;
+      border-radius: 10px;
+    }
 
     .thumbnail video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       background: #171717;
+    }
+
+    .thumbnail img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     .preview-label {
@@ -67,38 +64,91 @@
       display: inline-block;
       margin-top: 12px;
     }
+
+    /* Горизонтальные категории */
+
+    .category-wrapper {
+      width: 100%;
+      margin: 28px 0 35px;
+      overflow: hidden;
+    }
+
+    .category-list {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      white-space: nowrap;
+      padding: 5px 0 12px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .category-list::-webkit-scrollbar {
+      display: none;
+    }
+
+    .category-button {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px;
+      border: 1px solid #444;
+      border-radius: 30px;
+      background: #1c1c1c;
+      color: #eee;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .2s, border-color .2s;
+    }
+
+    .category-button.active {
+      background: #b68d32;
+      border-color: #d4ad52;
+      color: #111;
+    }
+
+    .category-button:active {
+      transform: scale(.97);
+    }
+
+    #catalogTitle {
+      margin-top: 25px;
+    }
   </style>
 </head>
 
 <body>
   <header class="header">
     <a class="logo" href="/">
-  <span>Y</span><span class="gold-fetish">-FETISH</span>
-  <small>VIDEO STORE</small>
-  </a>
+      <span>Y</span><span class="gold-fetish">-FETISH</span>
+      <small>VIDEO STORE</small>
+    </a>
 
+    <nav class="header-nav">
+      <button
+        class="menu-button"
+        id="menuButton"
+        type="button"
+        aria-label="Открыть меню"
+        aria-expanded="false"
+      >☰</button>
+    </nav>
 
-<nav class="header-nav">
-  <button
-    class="menu-button"
-    id="menuButton"
-    type="button"
-    aria-label="Открыть меню"
-    aria-expanded="false"
-  >☰</button>
-</nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
 
-<div class="menu-overlay" id="menuOverlay"></div>
+    <aside class="side-menu" id="sideMenu" aria-hidden="true">
+      <div class="side-menu-header">
+        <span>МЕНЮ</span>
+        <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
+      </div>
 
-<aside class="side-menu" id="sideMenu" aria-hidden="true">
-  <div class="side-menu-header">
-    <span>МЕНЮ</span>
-    <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
-  </div>
-
-  <a href="/">Каталог видео</a>
-  <a href="/admin.html">Для администраторов</a>
-</aside>
+      <a href="/">Каталог видео</a>
+      <a href="/admin.html">Для администраторов</a>
+    </aside>
   </header>
 
   <main class="container">
@@ -108,8 +158,50 @@
       <p>Студия Y-FETISH приглашает девушек из Украины на съёмку видео. За каждое видео студия платит 300 грн.</p>
     </section>
 
-    <h2>Каталог видео</h2>
+    <!-- Категории -->
+
+    <div class="category-wrapper">
+      <nav class="category-list" id="categoryList" aria-label="Категории видео">
+
+        <a class="category-button" data-category="all" href="/">
+          Все видео
+        </a>
+
+        <a class="category-button" data-category="mistress" href="/?category=mistress">
+          Госпожа
+        </a>
+
+        <a class="category-button" data-category="slave" href="/?category=slave">
+          Раб
+        </a>
+
+        <a class="category-button" data-category="domination" href="/?category=domination">
+          Доминирование
+        </a>
+
+        <a class="category-button" data-category="submission" href="/?category=submission">
+          Подчинение
+        </a>
+
+        <a class="category-button" data-category="fetish" href="/?category=fetish">
+          Фетиш
+        </a>
+
+        <a class="category-button" data-category="feet" href="/?category=feet">
+          Ножки
+        </a>
+
+        <a class="category-button" data-category="other" href="/?category=other">
+          Другое
+        </a>
+
+      </nav>
+    </div>
+
+    <h2 id="catalogTitle">Каталог видео</h2>
+
     <p id="status">Загрузка видео...</p>
+
     <div id="catalog" class="catalog"></div>
   </main>
 
@@ -117,6 +209,201 @@
 
   <script>
     let previewObserver;
+
+    // Названия категорий
+
+    const categories = {
+      all: "Каталог видео",
+      mistress: "Госпожа",
+      slave: "Раб",
+      domination: "Доминирование",
+      submission: "Подчинение",
+      fetish: "Фетиш",
+      feet: "Ножки",
+      other: "Другое"
+    };
+
+    // Получаем выбранную категорию из адреса
+
+    const params = new URLSearchParams(window.location.search);
+
+    const requestedCategory = params.get("category") || "all";
+
+    const currentCategory = Object.hasOwn(categories, requestedCategory)
+      ? requestedCategory
+      : "all";
+
+    // Приведение названий к единому формату
+
+    function normalizeCategory(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/ё/g, "е");
+    }
+
+    // Определяем категорию видео
+
+    function getVideoCategory(video) {
+      const value =
+        video.category ||
+        video.category_slug ||
+        video.theme ||
+        "";
+
+      const normalized = normalizeCategory(value);
+
+      const aliases = {
+        "госпожа": "mistress",
+        "mistress": "mistress",
+
+        "раб": "slave",
+        "slave": "slave",
+
+        "доминирование": "domination",
+        "domination": "domination",
+
+        "подчинение": "submission",
+        "submission": "submission",
+
+        "фетиш": "fetish",
+        "fetish": "fetish",
+
+        "ножки": "feet",
+        "ноги": "feet",
+        "feet": "feet",
+
+        "другое": "other",
+        "other": "other"
+      };
+
+      return aliases[normalized] || normalized;
+    }
+
+    // Подсветка выбранной категории
+
+    function updateCategoryButtons() {
+      document.querySelectorAll(".category-button").forEach(button => {
+        const active = button.dataset.category === currentCategory;
+
+        button.classList.toggle("active", active);
+
+        if (active) {
+          button.setAttribute("aria-current", "page");
+        } else {
+          button.removeAttribute("aria-current");
+        }
+      });
+
+      document.getElementById("catalogTitle").textContent =
+        categories[currentCategory];
+    }
+
+    // Создание карточки видео
+
+    function createVideoCard(video) {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const videoUrl =
+        "/video.html?slug=" + encodeURIComponent(video.slug);
+
+      const thumbnail = document.createElement("div");
+      thumbnail.className = "thumbnail";
+
+      if (video.preview_url) {
+        const player = document.createElement("video");
+
+        player.src = video.preview_url;
+        player.muted = true;
+        player.defaultMuted = true;
+        player.autoplay = true;
+        player.loop = true;
+        player.playsInline = true;
+        player.preload = "metadata";
+        player.controls = true;
+
+        player.setAttribute("playsinline", "");
+        player.setAttribute("webkit-playsinline", "");
+        player.setAttribute("aria-label", "Превью: " + video.title);
+
+        player.addEventListener("play", () => {
+          document.querySelectorAll("#catalog video").forEach(other => {
+            if (other !== player) {
+              other.pause();
+            }
+          });
+        });
+
+        thumbnail.appendChild(player);
+
+        const label = document.createElement("span");
+        label.className = "preview-label";
+        label.textContent = "ПРЕВЬЮ";
+
+        thumbnail.appendChild(label);
+
+      } else if (video.thumbnail_url) {
+        const link = document.createElement("a");
+
+        link.href = videoUrl;
+        link.setAttribute("aria-label", "Открыть видео: " + video.title);
+
+        const img = document.createElement("img");
+
+        img.src = video.thumbnail_url;
+        img.alt = video.title;
+        img.loading = "lazy";
+
+        link.appendChild(img);
+        thumbnail.appendChild(link);
+
+      } else {
+        const link = document.createElement("a");
+
+        link.href = videoUrl;
+        link.className = "thumbnail-placeholder";
+        link.textContent = "▶";
+
+        link.setAttribute("aria-label", "Открыть видео: " + video.title);
+
+        thumbnail.appendChild(link);
+      }
+
+      const content = document.createElement("div");
+      content.className = "card-content";
+
+      const title = document.createElement("h3");
+      const titleLink = document.createElement("a");
+
+      titleLink.href = videoUrl;
+      titleLink.textContent = video.title;
+
+      title.appendChild(titleLink);
+
+      const description = document.createElement("p");
+
+      description.textContent =
+        (video.description || "").slice(0, 180);
+
+      const price = document.createElement("strong");
+
+      price.textContent = `${video.price} ${video.currency}`;
+
+      const openLink = document.createElement("a");
+
+      openLink.href = videoUrl;
+      openLink.className = "open-video";
+      openLink.textContent = "Купить видео";
+
+      content.append(title, description, price, openLink);
+
+      card.append(thumbnail, content);
+
+      return card;
+    }
+
+    // Загрузка и фильтрация каталога
 
     async function loadCatalog() {
       const status = document.getElementById("status");
@@ -131,100 +418,39 @@
 
         const videos = await response.json();
 
-        catalog.replaceChildren();
-        status.textContent = videos.length ? "" : "Видео пока нет.";
+        if (!Array.isArray(videos)) {
+          throw new Error("Неверный формат каталога");
+        }
+
+        // Останавливаем старые превью
 
         if (previewObserver) {
           previewObserver.disconnect();
         }
 
-        videos.forEach(video => {
-          const card = document.createElement("article");
-          card.className = "card";
+        catalog.replaceChildren();
 
-          const videoUrl =
-            "/video.html?slug=" + encodeURIComponent(video.slug);
+        // Фильтрация по категории
 
-          const thumbnail = document.createElement("div");
-          thumbnail.className = "thumbnail";
-
-
-          if (video.preview_url) {
-            const player = document.createElement("video");
-
-            player.src = video.preview_url;
-            player.muted = true;
-            player.defaultMuted = true;
-            player.autoplay = true;
-            player.loop = true;
-            player.playsInline = true;
-            player.preload = "metadata";
-            player.controls = true;
-            player.setAttribute("playsinline", "");
-            player.setAttribute("webkit-playsinline", "");
-            player.setAttribute("aria-label", "Превью: " + video.title);
-
-
-            player.addEventListener("play", () => {
-              document.querySelectorAll("#catalog video").forEach(other => {
-                if (other !== player) {
-                  other.pause();
-                }
-              });
+        const filteredVideos = currentCategory === "all"
+          ? videos
+          : videos.filter(video => {
+              return getVideoCategory(video) === currentCategory;
             });
 
-            thumbnail.appendChild(player);
+        status.textContent = filteredVideos.length
+          ? ""
+          : currentCategory === "all"
+            ? "Видео пока нет."
+            : "В этой категории пока нет видео.";
 
-            const label = document.createElement("span");
-            label.className = "preview-label";
-            label.textContent = "ПРЕВЬЮ";
-            thumbnail.appendChild(label);
-          } else if (video.thumbnail_url) {
-            const link = document.createElement("a");
-            link.href = videoUrl;
-            link.setAttribute("aria-label", "Открыть видео: " + video.title);
+        // Создаём карточки
 
-            const img = document.createElement("img");
-            img.src = video.thumbnail_url;
-            img.alt = video.title;
-            img.loading = "lazy";
-
-            link.appendChild(img);
-            thumbnail.appendChild(link);
-          } else {
-            const link = document.createElement("a");
-            link.href = videoUrl;
-            link.className = "thumbnail-placeholder";
-            link.textContent = "▶";
-            link.setAttribute("aria-label", "Открыть видео: " + video.title);
-            thumbnail.appendChild(link);
-          }
-
-          const content = document.createElement("div");
-          content.className = "card-content";
-
-          const title = document.createElement("h3");
-          const titleLink = document.createElement("a");
-          titleLink.href = videoUrl;
-          titleLink.textContent = video.title;
-          title.appendChild(titleLink);
-
-          const description = document.createElement("p");
-          description.textContent =
-            (video.description || "").slice(0, 180);
-
-          const price = document.createElement("strong");
-          price.textContent = `${video.price} ${video.currency}`;
-
-          const openLink = document.createElement("a");
-          openLink.href = videoUrl;
-          openLink.className = "open-video";
-          openLink.textContent = "Купить видео";
-
-          content.append(title, description, price, openLink);
-          card.append(thumbnail, content);
-          catalog.appendChild(card);
+        filteredVideos.forEach(video => {
+          catalog.appendChild(createVideoCard(video));
         });
+
+        // Автоматическое воспроизведение видимых превью
 
         previewObserver = new IntersectionObserver(entries => {
           entries.forEach(entry => {
@@ -238,9 +464,9 @@
               });
 
               player.play().catch(() => {
-                // Если браузер запрещает автозапуск,
-                // пользователь может нажать Play вручную.
+                // Пользователь может запустить превью вручную.
               });
+
             } else {
               player.pause();
             }
@@ -255,10 +481,13 @@
 
       } catch (error) {
         console.error(error);
+
         status.textContent =
           "Не удалось загрузить каталог. Проверь сервер и Supabase.";
       }
     }
+
+    // Останавливаем видео, если пользователь покинул страницу
 
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
@@ -268,39 +497,45 @@
       }
     });
 
+    // Запуск каталога
+
+    updateCategoryButtons();
     loadCatalog();
 
+    // Боковое меню
 
+    (function () {
+      const menuButton = document.getElementById("menuButton");
+      const closeButton = document.getElementById("closeMenu");
+      const overlay = document.getElementById("menuOverlay");
+      const sideMenu = document.getElementById("sideMenu");
 
-/* 3.1 — Боковое меню */
-(function () {
-  const menuButton = document.getElementById("menuButton");
-  const closeButton = document.getElementById("closeMenu");
-  const overlay = document.getElementById("menuOverlay");
-  const sideMenu = document.getElementById("sideMenu");
+      if (!menuButton || !closeButton || !overlay || !sideMenu) return;
 
-  if (!menuButton || !closeButton || !overlay || !sideMenu) return;
+      function openMenu() {
+        document.body.classList.add("menu-open");
 
-  function openMenu() {
-    document.body.classList.add("menu-open");
-    menuButton.setAttribute("aria-expanded", "true");
-    sideMenu.setAttribute("aria-hidden", "false");
-  }
+        menuButton.setAttribute("aria-expanded", "true");
+        sideMenu.setAttribute("aria-hidden", "false");
+      }
 
-  function closeMenu() {
-    document.body.classList.remove("menu-open");
-    menuButton.setAttribute("aria-expanded", "false");
-    sideMenu.setAttribute("aria-hidden", "true");
-  }
+      function closeMenu() {
+        document.body.classList.remove("menu-open");
 
-  menuButton.addEventListener("click", openMenu);
-  closeButton.addEventListener("click", closeMenu);
-  overlay.addEventListener("click", closeMenu);
+        menuButton.setAttribute("aria-expanded", "false");
+        sideMenu.setAttribute("aria-hidden", "true");
+      }
 
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") closeMenu();
-  });
-})();
-</script>
+      menuButton.addEventListener("click", openMenu);
+      closeButton.addEventListener("click", closeMenu);
+      overlay.addEventListener("click", closeMenu);
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeMenu();
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
