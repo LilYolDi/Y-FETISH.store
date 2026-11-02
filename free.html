@@ -9,33 +9,218 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
   <style>
-    .free-publish-button {
-      display: inline-block;
-      padding: 10px 15px;
-      border-radius: 9px;
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #101010;
+      color: #f5f5f5;
+    }
+    /* ШАПКА */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 24px;
+      min-height: 105px;
+      border-bottom: 1px solid #292929;
+      background: #090909;
+    }
+    .header .logo {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      text-decoration: none;
+      font-size: 30px;
+      font-weight: 900;
+      line-height: 1.1;
+    }
+    .header .logo > span:first-child {
+      color: #ed2438;
+    }
+    .header .logo .gold-fetish {
+      color: #d6ad43;
+    }
+    .header .logo small {
+      margin-top: 7px;
+      color: #aaa;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 6px;
+    }
+    .header nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .header nav a {
+      color: #eee;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .header nav .free-publish-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 10px;
       background: #b68a32;
       color: #fff;
-      text-decoration: none;
-      font-weight: 700;
+      font-size: 14px;
+      font-weight: 800;
       white-space: nowrap;
     }
+    /* ОСНОВНОЙ КОНТЕЙНЕР */
+    .free-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 36px 24px 60px;
+    }
+    /* ЗАГОЛОВОК */
+    .free-hero {
+      margin-bottom: 30px;
+    }
+    .free-hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(28px, 5vw, 42px);
+      line-height: 1.2;
+      font-weight: 800;
+    }
+    .free-hero p {
+      margin: 0;
+      color: #bdbdbd;
+      font-size: 17px;
+      line-height: 1.5;
+    }
+    /* КАТЕГОРИИ */
+    .free-categories {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      margin: 28px 0 30px;
+      padding: 12px 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .free-categories::-webkit-scrollbar {
+      display: none;
+    }
+    .free-categories .category {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: 10px 19px;
+      border: 1px solid #333;
+      border-radius: 9px;
+      background: #202020;
+      color: #eee;
+      font-size: 14px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .2s, border-color .2s;
+    }
+    .free-categories .category.active {
+      border-color: #e52338;
+      background: #e52338;
+      color: #fff;
+    }
+    .free-categories .category:active {
+      transform: scale(.97);
+    }
+    /* ЗАГОЛОВОК КАТАЛОГА */
+    .free-catalog-heading {
+      margin: 0 0 18px;
+      font-size: 25px;
+      line-height: 1.3;
+      font-weight: 800;
+    }
+    .free-status {
+      margin: 0 0 22px;
+      color: #aaa;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+    /* КАРТОЧКИ */
+    .catalog {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+    }
+    .catalog .video-card {
+      min-width: 0;
+      overflow: hidden;
+    }
+    .catalog .video-card .thumbnail {
+      width: 100%;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #191919;
+    }
+    .catalog .video-card .thumbnail img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 3 / 4;
+      object-fit: cover;
+    }
     .free-badge {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      margin: 12px 0 5px;
       padding: 5px 10px;
-      margin: 8px 0;
       border-radius: 20px;
       background: #176b38;
       color: #fff;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .catalog .video-card h3 {
+      margin: 5px 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+    .catalog .video-card p {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .free-watch-button {
+      display: block;
+      width: 100%;
+      min-height: 43px;
+      margin-top: 12px;
+      padding: 11px 14px;
+      border: 0;
+      border-radius: 9px;
+      background: #b68a32;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .free-watch-button:active {
+      transform: scale(.98);
     }
     .free-video-player {
       display: none;
-      margin-top: 12px;
       width: 100%;
-      background: #000;
-      border-radius: 12px;
+      margin-top: 12px;
       overflow: hidden;
+      border-radius: 12px;
+      background: #000;
     }
     .free-video-player.active {
       display: block;
@@ -46,56 +231,164 @@
       max-height: 75vh;
       background: #000;
     }
-    .free-watch-button {
-      display: block;
-      width: 100%;
-      margin-top: 12px;
-      padding: 12px;
-      border: 0;
-      border-radius: 9px;
-      background: #b68a32;
-      color: #fff;
-      font-weight: 700;
-      cursor: pointer;
-    }
     .free-empty {
-      padding: 30px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      padding: 20px;
+      color: #999;
       text-align: center;
+    }
+    /* ПУСТОЙ КАТАЛОГ */
+    .free-empty-catalog {
+      padding: 28px 0;
       color: #aaa;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    /* ПОДВАЛ */
+    .free-footer {
+      margin-top: 50px;
+      padding: 24px 15px;
+      border-top: 1px solid #292929;
+      text-align: center;
+    }
+    .free-footer a {
+      color: #c9a044;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    /* ПЛАНШЕТ */
+    @media (max-width: 800px) {
+      .catalog {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 15px;
+      }
+    }
+    /* ТЕЛЕФОН */
+    @media (max-width: 600px) {
+      .header {
+        padding: 16px;
+        gap: 10px;
+        min-height: 90px;
+      }
+      .header .logo {
+        font-size: 23px;
+      }
+      .header .logo small {
+        font-size: 10px;
+        letter-spacing: 4px;
+      }
+      .header nav {
+        gap: 9px;
+      }
+      .header nav a {
+        font-size: 13px;
+      }
+      .header nav .free-publish-button {
+        min-height: 40px;
+        padding: 9px 11px;
+        font-size: 12px;
+      }
+      .free-container {
+        padding: 28px 16px 45px;
+      }
+      .free-hero {
+        margin-bottom: 24px;
+      }
+      .free-hero h1 {
+        font-size: 29px;
+      }
+      .free-hero p {
+        font-size: 15px;
+      }
+      .free-categories {
+        gap: 8px;
+        margin: 22px 0 24px;
+        padding: 8px 0;
+      }
+      .free-categories .category {
+        min-height: 40px;
+        padding: 9px 15px;
+        font-size: 13px;
+      }
+      .free-catalog-heading {
+        margin-bottom: 13px;
+        font-size: 22px;
+      }
+      .free-status {
+        font-size: 14px;
+      }
+      .catalog {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .catalog .video-card h3 {
+        font-size: 14px;
+      }
+      .catalog .video-card p {
+        font-size: 12px;
+      }
+      .free-watch-button {
+        min-height: 40px;
+        padding: 9px;
+        font-size: 12px;
+      }
+    }
+    @media (max-width: 360px) {
+      .header {
+        align-items: flex-start;
+      }
+      .header .logo {
+        font-size: 20px;
+      }
+      .header nav {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      .header nav .free-publish-button {
+        font-size: 11px;
+      }
     }
   </style>
 </head>
 <body>
 <header class="header">
   <a class="logo" href="/">
-    <span>Y</span><span class="gold-fetish">-FETISH</span>
+    <span><span>Y</span><span class="gold-fetish">-FETISH</span></span>
     <small>VIDEO STORE</small>
   </a>
   <nav>
     <a href="/">Платный каталог</a>
-    <a href="/admin.html" class="free-publish-button">＋ Опубликовать видео</a>
+    <a href="/admin.html" class="free-publish-button">
+      ＋ Опубликовать видео
+    </a>
   </nav>
 </header>
-<main class="container">
-  <section class="hero">
+<main class="free-container">
+  <section class="free-hero">
     <h1>Бесплатные видео</h1>
     <p>Смотри полные видео бесплатно.</p>
   </section>
-  <section class="categories" id="categories">
-    <button class="category active" data-category="all">Все</button>
-    <button class="category" data-category="mistress">Госпожа</button>
-    <button class="category" data-category="slave">Раб</button>
-    <button class="category" data-category="domination">Доминирование</button>
-    <button class="category" data-category="submission">Подчинение</button>
-    <button class="category" data-category="fetish">Фетиш</button>
-    <button class="category" data-category="feet">Ножки</button>
-    <button class="category" data-category="other">Другое</button>
+  <section class="free-categories" id="categories">
+    <button class="category active" data-category="all" type="button">Все</button>
+    <button class="category" data-category="mistress" type="button">Госпожа</button>
+    <button class="category" data-category="slave" type="button">Раб</button>
+    <button class="category" data-category="domination" type="button">Доминирование</button>
+    <button class="category" data-category="submission" type="button">Подчинение</button>
+    <button class="category" data-category="fetish" type="button">Фетиш</button>
+    <button class="category" data-category="feet" type="button">Ножки</button>
+    <button class="category" data-category="other" type="button">Другое</button>
   </section>
-  <h2 id="catalogTitle">Все бесплатные видео</h2>
-  <p id="status">Загружаем видео...</p>
+  <h2 class="free-catalog-heading" id="catalogTitle">
+    Все бесплатные видео
+  </h2>
+  <p class="free-status" id="status">Загружаем видео...</p>
   <section id="catalog" class="catalog"></section>
 </main>
-<footer>
+<footer class="free-footer">
   <a href="/">Вернуться в платный каталог</a>
 </footer>
 <script>
