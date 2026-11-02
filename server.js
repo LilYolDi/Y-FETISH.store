@@ -14,7 +14,7 @@ const PREVIEW_BUCKET = "preview-videos";
 const VIDEO_CATEGORIES = [
   "mistress",
   "slave",
-  "domination",
+  "Cuckold",
   "submission",
   "fetish",
   "feet",
