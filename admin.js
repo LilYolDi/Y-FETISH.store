@@ -1,3 +1,4 @@
+
 const tokenInput = document.getElementById("token");
 
 async function adminApi(url, options = {}) {
@@ -37,6 +38,7 @@ document.getElementById("create-form").addEventListener("submit", async e => {
         title: document.getElementById("title").value.trim(),
         slug: document.getElementById("slug").value.trim(),
         description: document.getElementById("description").value.trim(),
+        category: document.getElementById("category").value,
         price: document.getElementById("price").value,
         currency: document.getElementById("currency").value
       })
