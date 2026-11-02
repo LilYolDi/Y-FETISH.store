@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -28,6 +27,7 @@
 
     <h2>1. Создать карточку</h2>
     <form id="create-form">
+
       <label for="title">Название</label>
       <input id="title" maxlength="180" required>
 
@@ -48,15 +48,23 @@
         <option value="other">Другое</option>
       </select>
 
-      <label for="price">Цена</label>
-      <input id="price" type="number" min="0" step="0.01" required>
-
-      <label for="currency">Валюта</label>
-      <select id="currency">
-        <option value="UAH">UAH</option>
-        <option value="EUR">EUR</option>
-        <option value="USD">USD</option>
+      <label for="video-type">Тип публикации</label>
+      <select id="video-type" required>
+        <option value="paid">Платное видео</option>
+        <option value="free">Бесплатное видео</option>
       </select>
+
+      <div id="price-fields">
+        <label for="price">Цена</label>
+        <input id="price" type="number" min="0" step="0.01" value="0" required>
+
+        <label for="currency">Валюта</label>
+        <select id="currency">
+          <option value="UAH">UAH</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
 
       <button type="submit">Создать карточку</button>
     </form>
@@ -104,6 +112,26 @@
 </main>
 
 <footer><a href="/">Открыть каталог</a></footer>
+
+<script>
+const videoType = document.getElementById("video-type");
+const priceFields = document.getElementById("price-fields");
+const priceInput = document.getElementById("price");
+
+function updatePriceFields() {
+  const isFree = videoType.value === "free";
+  priceFields.style.display = isFree ? "none" : "block";
+  priceInput.required = !isFree;
+
+  if (isFree) {
+    priceInput.value = "0";
+  }
+}
+
+videoType.addEventListener("change", updatePriceFields);
+updatePriceFields();
+</script>
+
 <script src="/admin.js"></script>
 </body>
 </html>
