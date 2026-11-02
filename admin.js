@@ -1,3 +1,4 @@
+"use strict";
 
 const tokenInput = document.getElementById("token");
 
@@ -31,6 +32,9 @@ document.getElementById("create-form").addEventListener("submit", async e => {
   showStatus("create-status", "Создаём карточку...");
 
   try {
+    const videoType = document.getElementById("video-type").value;
+    const isFree = videoType === "free";
+
     const result = await adminApi("/api/admin/videos", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -39,7 +43,8 @@ document.getElementById("create-form").addEventListener("submit", async e => {
         slug: document.getElementById("slug").value.trim(),
         description: document.getElementById("description").value.trim(),
         category: document.getElementById("category").value,
-        price: document.getElementById("price").value,
+        is_free: isFree,
+        price: isFree ? 0 : document.getElementById("price").value,
         currency: document.getElementById("currency").value
       })
     });
@@ -54,7 +59,12 @@ document.getElementById("create-form").addEventListener("submit", async e => {
     document.getElementById("preview-id").value = video.id;
     document.getElementById("publish-id").value = video.id;
 
-    showStatus("create-status", "Карточка создана. ID: " + video.id);
+    showStatus(
+      "create-status",
+      (isFree ? "Бесплатная" : "Платная") +
+      " карточка создана. ID: " + video.id
+    );
+
   } catch (error) {
     showStatus("create-status", error.message);
   }
@@ -89,7 +99,7 @@ document.getElementById("upload-form").addEventListener("submit", async e => {
   }
 });
 
-// Загрузка короткого фрагмента в публичное хранилище
+// Загрузка короткого фрагмента
 document.getElementById("preview-form").addEventListener("submit", async e => {
   e.preventDefault();
 
@@ -126,15 +136,24 @@ document.getElementById("publish-form").addEventListener("submit", async e => {
   e.preventDefault();
 
   const id = document.getElementById("publish-id").value.trim();
+
+  if (!id) {
+    showStatus("publish-status", "Укажи ID карточки.");
+    return;
+  }
+
   showStatus("publish-status", "Публикуем...");
 
   try {
-    await adminApi(
+    const result = await adminApi(
       "/api/admin/videos/" + encodeURIComponent(id) + "/publish",
       { method: "POST" }
     );
 
-    showStatus("publish-status", "Опубликовано. Проверь каталог.");
+    showStatus(
+      "publish-status",
+      result.message || "Опубликовано. Проверь каталог."
+    );
   } catch (error) {
     showStatus("publish-status", error.message);
   }
