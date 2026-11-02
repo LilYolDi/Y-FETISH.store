@@ -1,4 +1,3 @@
-
 const express = require("express");
 const path = require("path");
 const crypto = require("crypto");
@@ -21,6 +20,8 @@ const VIDEO_CATEGORIES = [
   "feet",
   "other"
 ];
+
+const FREE_VIDEO_URL_EXPIRY = 3600;
 
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error("Missing Supabase environment variables");
@@ -109,7 +110,7 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Каталог: полные файлы не раскрываются
+// ПЛАТНЫЙ КАТАЛОГ
 app.get("/api/videos", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -118,6 +119,7 @@ app.get("/api/videos", async (req, res) => {
         "id,slug,title,description,price,currency,thumbnail_url,preview_path,category,created_at"
       )
       .eq("published", true)
+      .eq("is_free", false)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -154,7 +156,56 @@ app.get("/api/videos", async (req, res) => {
   }
 });
 
-// Информация о видео
+// БЕСПЛАТНЫЙ КАТАЛОГ С ПОЛНЫМИ ВИДЕО
+app.get("/api/free/videos", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("videos")
+      .select(
+        "id,slug,title,description,thumbnail_url,storage_path,category,created_at"
+      )
+      .eq("published", true)
+      .eq("is_free", true)
+      .not("storage_path", "is", null)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    const videos = await Promise.all(
+      (data || []).map(async video => {
+        const { data: signedData, error: signedError } =
+          await supabase.storage
+            .from(BUCKET)
+            .createSignedUrl(
+              video.storage_path,
+              FREE_VIDEO_URL_EXPIRY
+            );
+
+        if (signedError) throw signedError;
+
+        return {
+          id: video.id,
+          slug: video.slug,
+          title: video.title,
+          description: video.description,
+          thumbnail_url: video.thumbnail_url,
+          video_url: signedData.signedUrl,
+          category: video.category,
+          created_at: video.created_at
+        };
+      })
+    );
+
+    res.json(videos);
+  } catch (error) {
+    console.error("Free videos error:", error.message);
+    res.status(500).json({
+      error: "Не удалось загрузить бесплатные видео"
+    });
+  }
+});
+
+// ИНФОРМАЦИЯ О ПЛАТНОМ ВИДЕО
 app.get("/api/videos/:slug", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -164,6 +215,7 @@ app.get("/api/videos/:slug", async (req, res) => {
       )
       .eq("slug", req.params.slug)
       .eq("published", true)
+      .eq("is_free", false)
       .maybeSingle();
 
     if (error) throw error;
@@ -198,7 +250,7 @@ app.get("/api/videos/:slug", async (req, res) => {
   }
 });
 
-// Создание заказа
+// СОЗДАНИЕ ЗАКАЗА ТОЛЬКО ДЛЯ ПЛАТНЫХ ВИДЕО
 app.post("/api/orders", async (req, res) => {
   try {
     const { video_id, contact } = req.body;
@@ -211,14 +263,21 @@ app.post("/api/orders", async (req, res) => {
 
     const { data: video, error: videoError } = await supabase
       .from("videos")
-      .select("id,price,currency")
+      .select("id,price,currency,is_free")
       .eq("id", video_id)
       .eq("published", true)
       .maybeSingle();
 
     if (videoError) throw videoError;
+
     if (!video) {
       return res.status(404).json({ error: "Видео не найдено" });
+    }
+
+    if (video.is_free) {
+      return res.status(400).json({
+        error: "Это бесплатное видео. Покупка не требуется."
+      });
     }
 
     const { data: order, error } = await supabase
@@ -245,7 +304,7 @@ app.post("/api/orders", async (req, res) => {
   }
 });
 
-// Создание карточки
+// СОЗДАНИЕ КАРТОЧКИ
 app.post("/api/admin/videos", adminOnly, async (req, res) => {
   try {
     const {
@@ -255,7 +314,8 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
       price,
       currency,
       thumbnail_url,
-      category
+      category,
+      is_free
     } = req.body;
 
     const cleanSlug = String(slug || "").trim().toLowerCase();
@@ -270,7 +330,14 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
       return res.status(400).json({ error: "Укажите название видео" });
     }
 
-    const numericPrice = Number(price);
+    if (typeof is_free !== "undefined" && typeof is_free !== "boolean") {
+      return res.status(400).json({
+        error: "Неверный тип публикации"
+      });
+    }
+
+    const isFree = is_free === true;
+    const numericPrice = isFree ? 0 : Number(price);
 
     if (!Number.isFinite(numericPrice) || numericPrice < 0) {
       return res.status(400).json({ error: "Неверная цена" });
@@ -297,9 +364,10 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
         currency: selectedCurrency,
         thumbnail_url: thumbnail_url || null,
         category: selectedCategory,
+        is_free: isFree,
         published: false
       })
-      .select("id,slug,title,price,currency,category,published")
+      .select("id,slug,title,price,currency,category,is_free,published")
       .single();
 
     if (error) throw error;
@@ -310,10 +378,11 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
 
     if (
       error.code === "42703" ||
-      error.message?.includes("category")
+      error.message?.includes("category") ||
+      error.message?.includes("is_free")
     ) {
       return res.status(500).json({
-        error: "В Supabase ещё не создано поле category. Сначала настрой Supabase."
+        error: "Проверь наличие полей category и is_free в таблице videos Supabase."
       });
     }
 
@@ -323,7 +392,7 @@ app.post("/api/admin/videos", adminOnly, async (req, res) => {
   }
 });
 
-// Загрузка полного видео в приватное хранилище
+// ЗАГРУЗКА ПОЛНОГО ВИДЕО В ПРИВАТНОЕ ХРАНИЛИЩЕ
 app.post(
   "/api/admin/videos/:id/upload",
   adminOnly,
@@ -347,6 +416,7 @@ app.post(
         .maybeSingle();
 
       if (findError) throw findError;
+
       if (!video) {
         return res.status(404).json({ error: "Видео не найдено" });
       }
@@ -384,7 +454,7 @@ app.post(
   }
 );
 
-// Загрузка короткого фрагмента в публичное хранилище
+// ЗАГРУЗКА КОРОТКОГО ФРАГМЕНТА
 app.post(
   "/api/admin/videos/:id/preview",
   adminOnly,
@@ -410,6 +480,7 @@ app.post(
         .maybeSingle();
 
       if (findError) throw findError;
+
       if (!video) {
         return res.status(404).json({ error: "Видео не найдено" });
       }
@@ -454,12 +525,12 @@ app.post(
   }
 );
 
-// Публикация видео
+// ПУБЛИКАЦИЯ ВЫБРАННОГО ВИДА ВИДЕО
 app.post("/api/admin/videos/:id/publish", adminOnly, async (req, res) => {
   try {
     const { data: video, error: findError } = await supabase
       .from("videos")
-      .select("id,storage_path,title,preview_path,category")
+      .select("id,slug,storage_path,title,preview_path,category,is_free")
       .eq("id", req.params.id)
       .maybeSingle();
 
@@ -485,19 +556,24 @@ app.post("/api/admin/videos/:id/publish", adminOnly, async (req, res) => {
       .from("videos")
       .update({ published: true })
       .eq("id", video.id)
-      .select("id,slug,title,category,published")
+      .select("id,slug,title,category,is_free,published")
       .single();
 
     if (error) throw error;
 
-    res.json(data);
+    res.json({
+      ...data,
+      message: data.is_free
+        ? "Бесплатное видео опубликовано. Оно появится в бесплатном каталоге."
+        : "Платное видео опубликовано. Оно появится в платном каталоге."
+    });
   } catch (error) {
     console.error("Publish error:", error.message);
     res.status(500).json({ error: "Не удалось опубликовать видео" });
   }
 });
 
-// Просмотр заказов администратором
+// ПРОСМОТР ЗАКАЗОВ АДМИНИСТРАТОРОМ
 app.get("/api/admin/orders", adminOnly, async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -514,7 +590,7 @@ app.get("/api/admin/orders", adminOnly, async (req, res) => {
   }
 });
 
-// Ошибки загрузки
+// ОШИБКИ ЗАГРУЗКИ
 app.use((err, req, res, next) => {
   console.error("Server error:", err.message);
 
