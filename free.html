@@ -3,190 +3,88 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="robots" content="index,follow">
   <title>Бесплатные видео — FETISH VIDEO STORE</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Бесплатные полные видео FETISH VIDEO STORE.">
+  <meta name="robots" content="index,follow">
+  <link rel="stylesheet" href="/style.css">
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
   <style>
-    * {
-      box-sizing: border-box;
+    /* Категории — оформление как на главной */
+    .category-wrapper {
+      width: 100%;
+      margin: 28px 0 35px;
+      overflow: hidden;
     }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background: #101010;
-      color: #f5f5f5;
-    }
-    /* ШАПКА */
-    .header {
+    .category-list {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 20px 24px;
-      min-height: 105px;
-      border-bottom: 1px solid #292929;
-      background: #090909;
-    }
-    .header .logo {
-      display: flex;
-      flex-direction: column;
-      flex-shrink: 0;
-      text-decoration: none;
-      font-size: 30px;
-      font-weight: 900;
-      line-height: 1.1;
-    }
-    .header .logo > span:first-child {
-      color: #ed2438;
-    }
-    .header .logo .gold-fetish {
-      color: #d6ad43;
-    }
-    .header .logo small {
-      margin-top: 7px;
-      color: #aaa;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 6px;
-    }
-    
-    .header .free-header-nav {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 12px;
-}
-
-.header .free-header-nav > a {
-  color: #eee;
-  text-decoration: none;
-  font-size: 15px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.header .free-header-nav .free-publish-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  padding: 0;
-  border-radius: 10px;
-  background: #b68a32;
-  color: #fff;
-  font-size: 27px;
-  font-weight: 500;
-}
-    
-    
-    /* ОСНОВНОЙ КОНТЕЙНЕР */
-    .free-container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 36px 24px 60px;
-    }
-    /* ЗАГОЛОВОК */
-    .free-hero {
-      margin-bottom: 30px;
-    }
-    .free-hero h1 {
-      margin: 0 0 12px;
-      font-size: clamp(28px, 5vw, 42px);
-      line-height: 1.2;
-      font-weight: 800;
-    }
-    .free-hero p {
-      margin: 0;
-      color: #bdbdbd;
-      font-size: 17px;
-      line-height: 1.5;
-    }
-    /* КАТЕГОРИИ */
-    .free-categories {
-      display: flex;
-      flex-wrap: nowrap;
-      align-items: center;
-      gap: 9px;
-      width: 100%;
-      margin: 28px 0 30px;
-      padding: 12px 0;
+      gap: 10px;
       overflow-x: auto;
       overflow-y: hidden;
+      white-space: nowrap;
+      padding: 5px 0 12px;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
-    .free-categories::-webkit-scrollbar {
+    .category-list::-webkit-scrollbar {
       display: none;
     }
-    .free-categories .category {
+    .category-button {
       flex: 0 0 auto;
-      min-height: 42px;
-      padding: 10px 19px;
-      border: 1px solid #333;
-      border-radius: 9px;
-      background: #202020;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 18px;
+      border: 1px solid #444;
+      border-radius: 30px;
+      background: #1c1c1c;
       color: #eee;
       font-size: 14px;
-      font-weight: 700;
-      white-space: nowrap;
+      font-weight: 600;
       cursor: pointer;
       transition: background .2s, border-color .2s;
     }
-    .free-categories .category.active {
-      border-color: #e52338;
-      background: #e52338;
-      color: #fff;
+    .category-button.active {
+      background: #b68d32;
+      border-color: #d4ad52;
+      color: #111;
     }
-    .free-categories .category:active {
+    .category-button:active {
       transform: scale(.97);
     }
-    /* ЗАГОЛОВОК КАТАЛОГА */
-    .free-catalog-heading {
-      margin: 0 0 18px;
-      font-size: 25px;
-      line-height: 1.3;
-      font-weight: 800;
+    #catalogTitle {
+      margin-top: 25px;
     }
-    .free-status {
-      margin: 0 0 22px;
-      color: #aaa;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-    /* КАРТОЧКИ */
-    .catalog {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 20px;
-    }
-    .catalog .video-card {
+    /* Бесплатные карточки */
+    .free-card {
       min-width: 0;
       overflow: hidden;
     }
-    .catalog .video-card .thumbnail {
+    .free-thumbnail {
+      position: relative;
       width: 100%;
       overflow: hidden;
-      border-radius: 12px;
-      background: #191919;
+      background: #000;
+      border-radius: 10px;
     }
-    .catalog .video-card .thumbnail img {
+    .free-thumbnail img {
       display: block;
       width: 100%;
-      height: auto;
       aspect-ratio: 3 / 4;
       object-fit: cover;
     }
-    .free-badge {
-      display: inline-flex;
+    .free-thumbnail-placeholder {
+      display: flex;
       align-items: center;
-      margin: 12px 0 5px;
+      justify-content: center;
+      min-height: 180px;
+      color: #aaa;
+      font-size: 15px;
+    }
+    .free-badge {
+      display: inline-block;
+      margin: 10px 0 5px;
       padding: 5px 10px;
       border-radius: 20px;
       background: #176b38;
@@ -194,39 +92,31 @@
       font-size: 11px;
       font-weight: 800;
     }
-    .catalog .video-card h3 {
+    .free-card h3 {
       margin: 5px 0 8px;
-      font-size: 17px;
-      line-height: 1.35;
     }
-    .catalog .video-card p {
+    .free-card p {
       color: #aaa;
-      font-size: 14px;
       line-height: 1.5;
     }
     .free-watch-button {
       display: block;
       width: 100%;
-      min-height: 43px;
       margin-top: 12px;
-      padding: 11px 14px;
+      padding: 12px;
       border: 0;
       border-radius: 9px;
       background: #b68a32;
       color: #fff;
-      font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
       cursor: pointer;
-    }
-    .free-watch-button:active {
-      transform: scale(.98);
     }
     .free-video-player {
       display: none;
       width: 100%;
       margin-top: 12px;
       overflow: hidden;
-      border-radius: 12px;
+      border-radius: 10px;
       background: #000;
     }
     .free-video-player.active {
@@ -238,287 +128,300 @@
       max-height: 75vh;
       background: #000;
     }
-    .free-empty {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 180px;
-      padding: 20px;
-      color: #999;
-      text-align: center;
-    }
-    /* ПУСТОЙ КАТАЛОГ */
-    .free-empty-catalog {
-      padding: 28px 0;
+    .free-status {
       color: #aaa;
-      font-size: 15px;
-      line-height: 1.6;
     }
-    /* ПОДВАЛ */
-    .free-footer {
-      margin-top: 50px;
-      padding: 24px 15px;
-      border-top: 1px solid #292929;
-      text-align: center;
-    }
-    .free-footer a {
-      color: #c9a044;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 700;
-    }
-    /* ПЛАНШЕТ */
-    @media (max-width: 800px) {
-      .catalog {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 15px;
-      }
-    }
-    /* ТЕЛЕФОН */
     @media (max-width: 600px) {
-      .header {
-        padding: 16px;
-        gap: 10px;
-        min-height: 90px;
-      }
-      .header .logo {
-        font-size: 23px;
-      }
-      .header .logo small {
-        font-size: 10px;
-        letter-spacing: 4px;
-      }
-      .header nav {
-        gap: 9px;
-      }
-      .header nav a {
-        font-size: 13px;
-      }
-      .header nav .free-publish-button {
-        min-height: 40px;
-        padding: 9px 11px;
-        font-size: 12px;
-      }
-      .free-container {
-        padding: 28px 16px 45px;
-      }
-      .free-hero {
-        margin-bottom: 24px;
-      }
-      .free-hero h1 {
-        font-size: 29px;
-      }
-      .free-hero p {
-        font-size: 15px;
-      }
-      .free-categories {
-        gap: 8px;
-        margin: 22px 0 24px;
-        padding: 8px 0;
-      }
-      .free-categories .category {
-        min-height: 40px;
-        padding: 9px 15px;
-        font-size: 13px;
-      }
-      .free-catalog-heading {
-        margin-bottom: 13px;
-        font-size: 22px;
-      }
-      .free-status {
-        font-size: 14px;
-      }
-      .catalog {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-      }
-      .catalog .video-card h3 {
-        font-size: 14px;
-      }
-      .catalog .video-card p {
-        font-size: 12px;
-      }
       .free-watch-button {
-        min-height: 40px;
-        padding: 9px;
+        padding: 10px 6px;
         font-size: 12px;
       }
-    }
-    @media (max-width: 360px) {
-      .header {
-        align-items: flex-start;
+      .free-card h3 {
+        font-size: 14px;
       }
-      .header .logo {
-        font-size: 20px;
-      }
-      .header nav {
-        flex-direction: column;
-        align-items: flex-end;
-      }
-      .header nav .free-publish-button {
-        font-size: 11px;
+      .free-card p {
+        font-size: 12px;
       }
     }
   </style>
 </head>
 <body>
-<header class="header">
-  <a class="logo" href="/">
-    <span><span>Y</span><span class="gold-fetish">-FETISH</span></span>
-    <small>VIDEO STORE</small>
-  </a>
-  <nav class="free-header-nav">
-  <a href="/admin.html" class="free-publish-button" aria-label="Опубликовать видео">+</a>
-  <a href="/">Платный каталог</a>
+  <header class="header">
+    <a class="logo" href="/">
+      <span>Y</span><span class="gold-fetish">-FETISH</span>
+      <small>VIDEO STORE</small>
+    </a>
+<nav class="header-nav">
+  <button
+    class="menu-button"
+    id="menuButton"
+    type="button"
+    aria-label="Открыть меню"
+    aria-expanded="false"
+  >☰</button>
 </nav>
-</header>
-<main class="free-container">
-  <section class="free-hero">
-    <h1>Бесплатные видео</h1>
-    <p>Смотри полные видео бесплатно.</p>
-  </section>
-  <section class="free-categories" id="categories">
-    <button class="category active" data-category="all" type="button">Все</button>
-    <button class="category" data-category="mistress" type="button">Госпожа</button>
-    <button class="category" data-category="slave" type="button">Раб</button>
-    <button class="category" data-category="domination" type="button">Доминирование</button>
-    <button class="category" data-category="submission" type="button">Подчинение</button>
-    <button class="category" data-category="fetish" type="button">Фетиш</button>
-    <button class="category" data-category="feet" type="button">Ножки</button>
-    <button class="category" data-category="other" type="button">Другое</button>
-  </section>
-  <h2 class="free-catalog-heading" id="catalogTitle">
-    Все бесплатные видео
-  </h2>
-  <p class="free-status" id="status">Загружаем видео...</p>
-  <section id="catalog" class="catalog"></section>
-</main>
-<footer class="free-footer">
-  <a href="/">Вернуться в платный каталог</a>
-</footer>
-<script>
-"use strict";
-const catalog = document.getElementById("catalog");
-const status = document.getElementById("status");
-const catalogTitle = document.getElementById("catalogTitle");
-let allVideos = [];
-let activeCategory = "all";
-const categoryNames = {
-  all: "Все бесплатные видео",
-  mistress: "Госпожа",
-  slave: "Раб",
-  domination: "Доминирование",
-  submission: "Подчинение",
-  fetish: "Фетиш",
-  feet: "Ножки",
-  other: "Другое"
-};
-function escapeHtml(value) {
-  return String(value ?? "").replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  })[char]);
-}
-function createVideoCard(video) {
-  const card = document.createElement("article");
-  card.className = "video-card";
-  const title = escapeHtml(video.title || "Без названия");
-  const description = escapeHtml(video.description || "");
-  const videoUrl = video.video_url || video.url || "";
-  card.innerHTML = `
-    <div class="thumbnail">
-      ${
-        video.thumbnail_url
-          ? `<img src="${escapeHtml(video.thumbnail_url)}"
-                 alt="${title}" loading="lazy">`
-          : `<div class="free-empty">Бесплатное видео</div>`
-      }
-    </div>
-    <div class="free-badge">БЕСПЛАТНО</div>
-    <h3>${title}</h3>
-    <p>${description}</p>
-    <button class="free-watch-button" type="button">
-      Смотреть полностью
+<div class="menu-overlay" id="menuOverlay"></div>
+<aside class="side-menu" id="sideMenu" aria-hidden="true">
+  <div class="side-menu-header">
+    <span>МЕНЮ</span>
+    <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
+  </div>
+  <a href="/">Каталог видео</a>
+  <a href="/admin.html">Для администраторов</a>
+  <a href="/free.html">Бесплатные видео</a>
+</aside>
+  </header>
+  <main class="container">
+<section class="hero">
+  <h1>Бесплатные видео</h1>
+  <p>Смотри полные видео бесплатно.</p>
+</section>
+<div class="category-wrapper">
+  <nav class="category-list" id="categoryList" aria-label="Категории видео">
+    <button class="category-button active" data-category="all" type="button">
+      Все видео
     </button>
-    <div class="free-video-player">
-      <video controls playsinline preload="metadata"></video>
-    </div>
-  `;
-  const button = card.querySelector(".free-watch-button");
-  const playerBox = card.querySelector(".free-video-player");
-  const player = playerBox.querySelector("video");
-  button.addEventListener("click", async () => {
-    if (!videoUrl) {
-      status.textContent = "Ссылка на полное видео пока недоступна.";
-      return;
+    <button class="category-button" data-category="mistress" type="button">
+      Госпожа
+    </button>
+    <button class="category-button" data-category="slave" type="button">
+      Раб
+    </button>
+    <button class="category-button" data-category="domination" type="button">
+      Доминирование
+    </button>
+    <button class="category-button" data-category="submission" type="button">
+      Подчинение
+    </button>
+    <button class="category-button" data-category="fetish" type="button">
+      Фетиш
+    </button>
+    <button class="category-button" data-category="feet" type="button">
+      Ножки
+    </button>
+    <button class="category-button" data-category="other" type="button">
+      Другое
+    </button>
+  </nav>
+</div>
+<h2 id="catalogTitle">Все бесплатные видео</h2>
+<p id="status" class="free-status">Загружаем видео...</p>
+<div id="catalog" class="catalog"></div>
+  </main>
+  <footer>FETISH VIDEO STORE · 18+</footer>
+  <script>
+    "use strict";
+    const catalog = document.getElementById("catalog");
+    const status = document.getElementById("status");
+    const catalogTitle = document.getElementById("catalogTitle");
+    let allVideos = [];
+    let activeCategory = "all";
+    const categories = {
+      all: "Все бесплатные видео",
+      mistress: "Госпожа",
+      slave: "Раб",
+      domination: "Доминирование",
+      submission: "Подчинение",
+      fetish: "Фетиш",
+      feet: "Ножки",
+      other: "Другое"
+    };
+    function normalizeCategory(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/ё/g, "е");
     }
-    document.querySelectorAll(".free-video-player.active").forEach(box => {
-      if (box !== playerBox) {
-        box.classList.remove("active");
-        const oldPlayer = box.querySelector("video");
-        oldPlayer.pause();
-        oldPlayer.removeAttribute("src");
-        oldPlayer.load();
+    function getVideoCategory(video) {
+      const value =
+        video.category ||
+        video.category_slug ||
+        video.theme ||
+        "";
+      const normalized = normalizeCategory(value);
+      const aliases = {
+        "госпожа": "mistress",
+        "mistress": "mistress",
+        "раб": "slave",
+        "slave": "slave",
+        "доминирование": "domination",
+        "domination": "domination",
+        "подчинение": "submission",
+        "submission": "submission",
+        "фетиш": "fetish",
+        "fetish": "fetish",
+        "ножки": "feet",
+        "ноги": "feet",
+        "feet": "feet",
+        "другое": "other",
+        "other": "other"
+      };
+      return aliases[normalized] || normalized;
+    }
+    function updateCategoryButtons() {
+      document.querySelectorAll(".category-button").forEach(button => {
+        const active = button.dataset.category === activeCategory;
+        button.classList.toggle("active", active);
+        if (active) {
+          button.setAttribute("aria-current", "true");
+        } else {
+          button.removeAttribute("aria-current");
+        }
+      });
+      catalogTitle.textContent = categories[activeCategory];
+    }
+    function createVideoCard(video) {
+      const card = document.createElement("article");
+      card.className = "free-card";
+      const thumbnail = document.createElement("div");
+      thumbnail.className = "free-thumbnail";
+      if (video.thumbnail_url) {
+        const img = document.createElement("img");
+        img.src = video.thumbnail_url;
+        img.alt = video.title || "Бесплатное видео";
+        img.loading = "lazy";
+        thumbnail.appendChild(img);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "free-thumbnail-placeholder";
+        placeholder.textContent = "Бесплатное видео";
+        thumbnail.appendChild(placeholder);
+      }
+      const badge = document.createElement("span");
+      badge.className = "free-badge";
+      badge.textContent = "БЕСПЛАТНО";
+      const title = document.createElement("h3");
+      title.textContent = video.title || "Без названия";
+      const description = document.createElement("p");
+      description.textContent = video.description || "";
+      const button = document.createElement("button");
+      button.className = "free-watch-button";
+      button.type = "button";
+      button.textContent = "Смотреть полностью";
+      const playerBox = document.createElement("div");
+      playerBox.className = "free-video-player";
+      const player = document.createElement("video");
+      player.controls = true;
+      player.playsInline = true;
+      player.preload = "metadata";
+      playerBox.appendChild(player);
+      const videoUrl = video.video_url || video.url || "";
+      button.addEventListener("click", async () => {
+        if (!videoUrl) {
+          status.textContent =
+            "Ссылка на полное видео пока недоступна.";
+          return;
+        }
+        document.querySelectorAll(".free-video-player.active").forEach(box => {
+          if (box !== playerBox) {
+            box.classList.remove("active");
+            const oldPlayer = box.querySelector("video");
+            oldPlayer.pause();
+            oldPlayer.removeAttribute("src");
+            oldPlayer.load();
+          }
+        });
+        playerBox.classList.add("active");
+        if (!player.src) {
+          player.src = videoUrl;
+        }
+        try {
+          await player.play();
+        } catch (_) {
+          player.controls = true;
+        }
+        button.textContent = "Видео открыто";
+      });
+      player.addEventListener("ended", () => {
+        button.textContent = "Смотреть полностью";
+      });
+      card.append(
+        thumbnail,
+        badge,
+        title,
+        description,
+        button,
+        playerBox
+      );
+      return card;
+    }
+    function renderVideos() {
+      catalog.replaceChildren();
+      const videos = activeCategory === "all"
+        ? allVideos
+        : allVideos.filter(video => {
+            return getVideoCategory(video) === activeCategory;
+          });
+      catalogTitle.textContent = categories[activeCategory];
+      if (!videos.length) {
+        status.textContent =
+          "В этой категории пока нет бесплатных видео.";
+        return;
+      }
+      status.textContent = "Найдено видео: " + videos.length;
+      videos.forEach(video => {
+        catalog.appendChild(createVideoCard(video));
+      });
+    }
+    async function loadVideos() {
+      try {
+        const response = await fetch("/api/free/videos");
+        const result = await response.json();
+        if (!response.ok) {
+          throw new Error(result.error || "Ошибка загрузки");
+        }
+        allVideos = Array.isArray(result)
+          ? result
+          : (result.videos || []);
+        renderVideos();
+      } catch (error) {
+        console.error(error);
+        status.textContent =
+          "Не удалось загрузить бесплатные видео. Проверь сервер и Supabase.";
+      }
+    }
+    document.querySelectorAll("[data-category]").forEach(button => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category;
+        updateCategoryButtons();
+        renderVideos();
+      });
+    });
+    // Боковое меню — как на index.html
+    (function () {
+      const menuButton = document.getElementById("menuButton");
+      const closeButton = document.getElementById("closeMenu");
+      const overlay = document.getElementById("menuOverlay");
+      const sideMenu = document.getElementById("sideMenu");
+      if (!menuButton || !closeButton || !overlay || !sideMenu) return;
+      function openMenu() {
+        document.body.classList.add("menu-open");
+        menuButton.setAttribute("aria-expanded", "true");
+        sideMenu.setAttribute("aria-hidden", "false");
+      }
+      function closeMenu() {
+        document.body.classList.remove("menu-open");
+        menuButton.setAttribute("aria-expanded", "false");
+        sideMenu.setAttribute("aria-hidden", "true");
+      }
+      menuButton.addEventListener("click", openMenu);
+      closeButton.addEventListener("click", closeMenu);
+      overlay.addEventListener("click", closeMenu);
+      document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+          closeMenu();
+        }
+      });
+    })();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        document.querySelectorAll(".free-video-player video").forEach(player => {
+          player.pause();
+        });
       }
     });
-    playerBox.classList.add("active");
-    if (!player.src) {
-      player.src = videoUrl;
-    }
-    try {
-      await player.play();
-    } catch (_) {
-      player.controls = true;
-    }
-    button.textContent = "Видео открыто";
-  });
-  return card;
-}
-function renderVideos() {
-  catalog.innerHTML = "";
-  const videos = activeCategory === "all"
-    ? allVideos
-    : allVideos.filter(video => video.category === activeCategory);
-  catalogTitle.textContent = categoryNames[activeCategory];
-  if (!videos.length) {
-    status.textContent = "В этой категории пока нет бесплатных видео.";
-    return;
-  }
-  status.textContent = "Найдено видео: " + videos.length;
-  videos.forEach(video => {
-    catalog.appendChild(createVideoCard(video));
-  });
-}
-async function loadVideos() {
-  try {
-    const response = await fetch("/api/free/videos");
-    const result = await response.json();
-    if (!response.ok) {
-      throw new Error(result.error || "Ошибка загрузки");
-    }
-    allVideos = Array.isArray(result)
-      ? result
-      : (result.videos || []);
-    renderVideos();
-  } catch (error) {
-    status.textContent =
-      "Не удалось загрузить бесплатные видео: " + error.message;
-  }
-}
-document.querySelectorAll("[data-category]").forEach(button => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll("[data-category]").forEach(item => {
-      item.classList.remove("active");
-    });
-    button.classList.add("active");
-    activeCategory = button.dataset.category;
-    renderVideos();
-  });
-});
-loadVideos();
-</script>
+    updateCategoryButtons();
+    loadVideos();
+  </script>
 </body>
 </html>
