@@ -417,32 +417,3 @@ body.menu-open {
     display: inline-block;
   }
 }
-
-
-
-/* Переключение фона страницы */
-body.light-background {
-  background: #ffffff;
-}
-
-
-
-/* Переключатель фона */
-.theme-button {
-  width: 38px;
-  height: 38px;
-  padding: 0;
-  margin: 0;
-  background: #171717;
-  color: #fff;
-  border: 1px solid #555;
-  border-radius: 4px;
-  font-size: 20px;
-  cursor: pointer;
-  flex-shrink: 0;
-}
-
-/* Светлый фон страницы */
-body.light-background {
-  background: #fff;
-}
