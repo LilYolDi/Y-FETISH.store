@@ -136,14 +136,6 @@
         aria-label="Открыть меню"
         aria-expanded="false"
       >☰</button>
-
-    
-    <button
-        class="theme-button"
-        id="themeButton"
-        type="button"
-        aria-label="Переключить фон"
-    >☀</button>
     </nav>
 
     <div class="menu-overlay" id="menuOverlay"></div>
@@ -166,37 +158,6 @@
   <p class="gold-fetish">Каталог видео для совершеннолетних — 18+</p>
   <p class="gold-fetish">Студия Y-FETISH приглашает девушек из Украины на съёмку видео. За каждое видео студия платит 300 грн.</p>
 </section>
-
-
-// Переключение фона страницы
-(function () {
-  const button = document.getElementById("themeButton");
-
-  if (!button) return;
-
-  if (localStorage.getItem("pageBackground") === "light") {
-    document.body.classList.add("light-background");
-  }
-
-  function updateButton() {
-    button.textContent = document.body.classList.contains("light-background")
-      ? "☾"
-      : "☀";
-  }
-
-  updateButton();
-
-  button.addEventListener("click", function () {
-    document.body.classList.toggle("light-background");
-
-    const light = document.body.classList.contains("light-background");
-
-    localStorage.setItem("pageBackground", light ? "light" : "dark");
-
-    updateButton();
-  });
-})();
-
 
     <!-- Категории -->
 
