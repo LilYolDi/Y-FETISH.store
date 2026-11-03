@@ -167,6 +167,37 @@
   <p class="gold-fetish">Студия Y-FETISH приглашает девушек из Украины на съёмку видео. За каждое видео студия платит 300 грн.</p>
 </section>
 
+
+// Переключение фона страницы
+(function () {
+  const button = document.getElementById("themeButton");
+
+  if (!button) return;
+
+  if (localStorage.getItem("pageBackground") === "light") {
+    document.body.classList.add("light-background");
+  }
+
+  function updateButton() {
+    button.textContent = document.body.classList.contains("light-background")
+      ? "☾"
+      : "☀";
+  }
+
+  updateButton();
+
+  button.addEventListener("click", function () {
+    document.body.classList.toggle("light-background");
+
+    const light = document.body.classList.contains("light-background");
+
+    localStorage.setItem("pageBackground", light ? "light" : "dark");
+
+    updateButton();
+  });
+})();
+
+
     <!-- Категории -->
 
     <div class="category-wrapper">
