@@ -10,7 +10,6 @@
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="apple-touch-icon" href="/favicon.png">
   <style>
-    /* Категории — оформление как на главной */
     .category-wrapper {
       width: 100%;
       margin: 28px 0 35px;
@@ -56,29 +55,32 @@
     #catalogTitle {
       margin-top: 25px;
     }
-    /* Бесплатные карточки */
     .free-card {
       min-width: 0;
       overflow: hidden;
     }
+    /* Единое окно для короткого и полного видео */
     .free-thumbnail {
       position: relative;
       width: 100%;
       overflow: hidden;
       background: #000;
       border-radius: 10px;
+      aspect-ratio: 3 / 4;
     }
-    .free-thumbnail img {
+    .free-thumbnail img,
+    .free-thumbnail video {
       display: block;
       width: 100%;
-      aspect-ratio: 3 / 4;
+      height: 100%;
       object-fit: cover;
+      background: #000;
     }
     .free-thumbnail-placeholder {
       display: flex;
       align-items: center;
       justify-content: center;
-      min-height: 180px;
+      height: 100%;
       color: #aaa;
       font-size: 15px;
     }
@@ -111,22 +113,11 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .free-video-player {
-      display: none;
-      width: 100%;
-      margin-top: 12px;
-      overflow: hidden;
-      border-radius: 10px;
-      background: #000;
+    .free-watch-button:active {
+      transform: scale(.98);
     }
-    .free-video-player.active {
-      display: block;
-    }
-    .free-video-player video {
-      display: block;
-      width: 100%;
-      max-height: 75vh;
-      background: #000;
+    .free-watch-button.opened {
+      background: #176b38;
     }
     .free-status {
       color: #aaa;
@@ -151,62 +142,62 @@
       <span>Y</span><span class="gold-fetish">-FETISH</span>
       <small>VIDEO STORE</small>
     </a>
-<nav class="header-nav">
-  <button
-    class="menu-button"
-    id="menuButton"
-    type="button"
-    aria-label="Открыть меню"
-    aria-expanded="false"
-  >☰</button>
-</nav>
-<div class="menu-overlay" id="menuOverlay"></div>
-<aside class="side-menu" id="sideMenu" aria-hidden="true">
-  <div class="side-menu-header">
-    <span>МЕНЮ</span>
-    <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
-  </div>
-  <a href="/">Каталог видео</a>
-  <a href="/admin.html">Для администраторов</a>
-  <a href="/free.html">Бесплатные видео</a>
-</aside>
+    <nav class="header-nav">
+      <button
+        class="menu-button"
+        id="menuButton"
+        type="button"
+        aria-label="Открыть меню"
+        aria-expanded="false"
+      >☰</button>
+    </nav>
+    <div class="menu-overlay" id="menuOverlay"></div>
+    <aside class="side-menu" id="sideMenu" aria-hidden="true">
+      <div class="side-menu-header">
+        <span>МЕНЮ</span>
+        <button id="closeMenu" type="button" aria-label="Закрыть меню">✕</button>
+      </div>
+      <a href="/">Каталог видео</a>
+      <a href="/admin.html">Для администраторов</a>
+      <a href="/free.html">Бесплатные видео</a>
+    </aside>
   </header>
   <main class="container">
-<section class="hero">
-  <h1>FETISH VIDEO FREE</h1>
-  <p>Каталог видео для совершеннолетних — 18+</p>
-</section>
-<div class="category-wrapper">
-  <nav class="category-list" id="categoryList" aria-label="Категории видео">
-    <button class="category-button active" data-category="all" type="button">
-      Все видео
-    </button>
-    <button class="category-button" data-category="mistress" type="button">
-      Госпожа
-    </button>
-    <button class="category-button" data-category="slave" type="button">
-      Раб
-    </button>
-    <button class="category-button" data-category="Cuckold" type="button">
-      Cuckold
-    </button>
-    <button class="category-button" data-category="submission" type="button">
-      Подчинение
-    </button>
-    <button class="category-button" data-category="fetish" type="button">
-      Фетиш
-    </button>
-    <button class="category-button" data-category="feet" type="button">
-      Ножки
-    </button>
-    <button class="category-button" data-category="other" type="button">
-      Другое
-    </button>
-  </nav>
-</div>
-<h2 id="catalogTitle">Все бесплатные видео</h2>
-<p id="status" class="free-status">Загружаем видео...</p>
-<div id="catalog" class="catalog"></div>
+    <section class="hero">
+      <h1>FETISH VIDEO FREE</h1>
+      <p>Каталог видео для совершеннолетних — 18+</p>
+    </section>
+    <div class="category-wrapper">
+      <nav class="category-list" id="categoryList" aria-label="Категории видео">
+        <button class="category-button active" data-category="all" type="button">
+          Все видео
+        </button>
+        <button class="category-button" data-category="mistress" type="button">
+          Госпожа
+        </button>
+        <button class="category-button" data-category="slave" type="button">
+          Раб
+        </button>
+        <button class="category-button" data-category="Cuckold" type="button">
+          Cuckold
+        </button>
+        <button class="category-button" data-category="submission" type="button">
+          Подчинение
+        </button>
+        <button class="category-button" data-category="fetish" type="button">
+          Фетиш
+        </button>
+        <button class="category-button" data-category="feet" type="button">
+          Ножки
+        </button>
+        <button class="category-button" data-category="other" type="button">
+          Другое
+        </button>
+      </nav>
+    </div>
+    <h2 id="catalogTitle">Все бесплатные видео</h2>
+    <p id="status" class="free-status">Загружаем видео...</p>
+    <div id="catalog" class="catalog"></div>
   </main>
   <footer>FETISH VIDEO STORE · 18+</footer>
   <script>
@@ -226,6 +217,21 @@
       feet: "Ножки",
       other: "Другое"
     };
+    const previewObserver = "IntersectionObserver" in window
+      ? new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+            const player = entry.target;
+            if (player.dataset.fullPlaying === "true") return;
+            if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+              player.play().catch(() => {});
+            } else {
+              player.pause();
+            }
+          });
+        }, {
+          threshold: [0, 0.6, 1]
+        })
+      : null;
     function normalizeCategory(value) {
       return String(value || "")
         .trim()
@@ -244,7 +250,7 @@
         "mistress": "mistress",
         "раб": "slave",
         "slave": "slave",
-        "Cuckold": "Cuckold",
+        "cuckold": "Cuckold",
         "domination": "domination",
         "подчинение": "submission",
         "submission": "submission",
@@ -270,12 +276,56 @@
       });
       catalogTitle.textContent = categories[activeCategory];
     }
+    function stopOtherFullVideos(currentPlayer) {
+      document.querySelectorAll(
+        '.free-thumbnail video[data-full-playing="true"]'
+      ).forEach(player => {
+        if (player === currentPlayer) return;
+        player.pause();
+        player.dataset.fullPlaying = "false";
+        const card = player.closest(".free-card");
+        const button = card?.querySelector(".free-watch-button");
+        if (player.dataset.previewUrl) {
+          player.src = player.dataset.previewUrl;
+          player.muted = true;
+          player.loop = true;
+          player.controls = false;
+          player.load();
+          if (button) {
+            button.textContent = "Смотреть полностью";
+            button.classList.remove("opened");
+          }
+        }
+      });
+    }
     function createVideoCard(video) {
       const card = document.createElement("article");
       card.className = "free-card";
       const thumbnail = document.createElement("div");
       thumbnail.className = "free-thumbnail";
-      if (video.thumbnail_url) {
+      const previewUrl = video.preview_url || "";
+      const videoUrl = video.video_url || video.url || "";
+      let player = null;
+      if (previewUrl) {
+        // Короткое видео-превью
+        player = document.createElement("video");
+        player.src = previewUrl;
+        player.muted = true;
+        player.defaultMuted = true;
+        player.autoplay = true;
+        player.loop = true;
+        player.playsInline = true;
+        player.preload = "metadata";
+        player.controls = false;
+        player.dataset.previewUrl = previewUrl;
+        player.dataset.fullPlaying = "false";
+        thumbnail.appendChild(player);
+        if (previewObserver) {
+          previewObserver.observe(player);
+        } else {
+          player.play().catch(() => {});
+        }
+      } else if (video.thumbnail_url) {
         const img = document.createElement("img");
         img.src = video.thumbnail_url;
         img.alt = video.title || "Бесплатное видео";
@@ -298,50 +348,47 @@
       button.className = "free-watch-button";
       button.type = "button";
       button.textContent = "Смотреть полностью";
-      const playerBox = document.createElement("div");
-      playerBox.className = "free-video-player";
-      const player = document.createElement("video");
-      player.controls = true;
-      player.playsInline = true;
-      player.preload = "metadata";
-      playerBox.appendChild(player);
-      const videoUrl = video.video_url || video.url || "";
+      // Полное видео запускается в том же окне,
+      // где показывалось короткое превью.
       button.addEventListener("click", async () => {
         if (!videoUrl) {
           status.textContent =
             "Ссылка на полное видео пока недоступна.";
           return;
         }
-        document.querySelectorAll(".free-video-player.active").forEach(box => {
-          if (box !== playerBox) {
-            box.classList.remove("active");
-            const oldPlayer = box.querySelector("video");
-            oldPlayer.pause();
-            oldPlayer.removeAttribute("src");
-            oldPlayer.load();
-          }
-        });
-        playerBox.classList.add("active");
-        if (!player.src) {
-          player.src = videoUrl;
+        stopOtherFullVideos(player);
+        if (!player) {
+          player = document.createElement("video");
+          player.playsInline = true;
+          player.preload = "metadata";
+          thumbnail.replaceChildren(player);
         }
+        if (previewObserver) {
+          previewObserver.unobserve(player);
+        }
+        player.pause();
+        player.dataset.fullPlaying = "true";
+        player.src = videoUrl;
+        player.muted = false;
+        player.loop = false;
+        player.controls = true;
+        player.autoplay = true;
+        player.load();
+        button.textContent = "Видео открыто";
+        button.classList.add("opened");
         try {
           await player.play();
-        } catch (_) {
+        } catch (error) {
           player.controls = true;
+          console.log("Нажмите Play для запуска видео:", error);
         }
-        button.textContent = "Видео открыто";
-      });
-      player.addEventListener("ended", () => {
-        button.textContent = "Смотреть полностью";
       });
       card.append(
         thumbnail,
         badge,
         title,
         description,
-        button,
-        playerBox
+        button
       );
       return card;
     }
@@ -387,7 +434,7 @@
         renderVideos();
       });
     });
-    // Боковое меню — как на index.html
+    // Боковое меню
     (function () {
       const menuButton = document.getElementById("menuButton");
       const closeButton = document.getElementById("closeMenu");
@@ -415,8 +462,16 @@
     })();
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
-        document.querySelectorAll(".free-video-player video").forEach(player => {
+        document.querySelectorAll(".free-thumbnail video").forEach(player => {
           player.pause();
+        });
+      } else {
+        document.querySelectorAll(
+          '.free-thumbnail video[data-full-playing="false"]'
+        ).forEach(player => {
+          if (!previewObserver) {
+            player.play().catch(() => {});
+          }
         });
       }
     });
