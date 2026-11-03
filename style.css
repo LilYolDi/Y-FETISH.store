@@ -417,3 +417,10 @@ body.menu-open {
     display: inline-block;
   }
 }
+
+
+
+/* Переключение фона страницы */
+body.light-background {
+  background: #ffffff;
+}
